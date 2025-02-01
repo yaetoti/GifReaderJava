@@ -122,5 +122,9 @@ public final class BitOutputStream {
 
     return result;
   }
+
+  public long GetBitsCount() {
+    return (long)m_bytes * Byte.SIZE + m_remainderBits;
+  }
 }
 

@@ -1,90 +1,11 @@
 package com.yaetoti.gif;
 
-import com.yaetoti.gif.io.BitOutputStream;
 import com.yaetoti.gif.io.GifInput;
 import com.yaetoti.gif.io.LittleEndianDataInput;
 import com.yaetoti.gif.utils.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.HashMap;
-
-class LzwMain {
-  public static byte[] encode(@Range(from = 1, to = 11) int minimumCodeSize, byte @NotNull [] bytes) {
-    final int clearCode = 1 << minimumCodeSize;
-    final int eoiCode = clearCode + 1;
-    int nextUnusedCode = eoiCode + 1;
-    int codeBits = minimumCodeSize + 1;
-
-    // Send clear code
-    BitOutputStream out = new BitOutputStream();
-    out.PutInt(clearCode, codeBits);
-
-    // Early end
-    if (bytes.length == 0) {
-      out.PutInt(eoiCode, codeBits);
-      return out.ToByteArray();
-    }
-
-    // Init code table
-    HashMap<ByteSequence, Integer> codeTable = new HashMap<>();
-    for (int i = 0; i < clearCode; ++i) {
-      codeTable.put(ByteSequence.Of((byte)i), i);
-    }
-
-    // Start reading
-    ByteSequence indexBuffer = ByteSequence.Of(bytes[0]);
-
-    for (int nextByteIndex = 1; nextByteIndex < bytes.length; ++nextByteIndex) {
-      byte nextByte = bytes[nextByteIndex];
-      ByteSequence nextIndexBuffer = indexBuffer.Append(nextByte);
-
-      if (codeTable.containsKey(nextIndexBuffer)) {
-        // Sequence already exists
-        indexBuffer = nextIndexBuffer;
-      } else {
-        // Add new code, output code for indexBuffer
-        codeTable.put(nextIndexBuffer, nextUnusedCode);
-        out.PutInt(codeTable.get(indexBuffer), codeBits);
-        indexBuffer = ByteSequence.Of(nextByte);
-
-        // Check for nextCode overflow
-        int nextCodeBits = BitUtils.GetBitsRequired(nextUnusedCode);
-        // TODO replace magic literal
-        if (nextCodeBits != codeBits) {
-          if (nextCodeBits > 12) {
-            break;
-          }
-
-          codeBits = nextCodeBits;
-        }
-
-        nextUnusedCode += 1;
-      }
-    }
-
-    // Send code for index buffer and EOI code
-    out.PutInt(codeTable.get(indexBuffer), codeBits);
-    out.PutInt(eoiCode, codeBits);
-    return out.ToByteArray();
-  }
-
-  public static void main(String[] args) {
-    BitOutputStream out = new BitOutputStream();
-    out.PutInt(4, 3);
-    out.PutInt(1, 3);
-    out.PutInt(6, 3);
-    out.PutInt(6, 3);
-    out.PutInt(6, 3);
-    byte[] array0 = out.ToByteArray();
-    IoUtils.WriteByteArrayBin(System.out, array0);
-
-    byte[] array1 = encode(2, new byte[] { 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1 });
-    IoUtils.WriteByteArrayBin(System.out, array1);
-  }
-}
 
 public class Main {
   public static void main(String[] args) throws IOException {

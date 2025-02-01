@@ -5,21 +5,21 @@ import org.jetbrains.annotations.Range;
 
 import java.util.Arrays;
 
-public final class BitOutputStream {
+public final class BitOutputStreamLE {
   public static final int INITIAL_CAPACITY = 16;
   private byte[] m_buffer;
   private byte m_remainder;
   private int m_bytes;
   private int m_remainderBits;
 
-  public BitOutputStream() {
+  public BitOutputStreamLE() {
     m_buffer = new byte[INITIAL_CAPACITY];
     m_bytes = 0;
     m_remainder = 0;
     m_remainderBits = 0;
   }
 
-  public BitOutputStream(int capacity) {
+  public BitOutputStreamLE(int capacity) {
     assert capacity > 0;
     m_buffer = new byte[capacity];
     m_bytes = 0;

@@ -13,6 +13,7 @@ public class Main {
 
 
     RandomAccessFile file = new RandomAccessFile("image.gif", "r");
+    //RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
     //RandomAccessFile file = new RandomAccessFile("E:\\PremiereExport\\Miraculous-london-Full-HD.gif", "r");
     GifInput input = new GifInput(new LittleEndianDataInput(file));
 
@@ -22,17 +23,17 @@ public class Main {
 
 
       var version = input.ReadHeader();
-      System.out.println(version);
+      //System.out.println(version);
       var lsd = input.ReadLogicalScreenDescriptor();
-      System.out.println(lsd);
+      //System.out.println(lsd);
       if (lsd.isGlobalColorTablePresent) {
         var colorTable = input.ReadColorTable(lsd.globalColorTableSize);
-        System.out.println(Arrays.toString(colorTable));
+        //System.out.println(Arrays.toString(colorTable));
       }
 
       while (true) {
         var label = input.ReadBlockLabel();
-        System.out.println(label);
+        //System.out.println(label);
 
         if (label == GifBlockLabel.TRAILER) {
           break;
@@ -40,23 +41,41 @@ public class Main {
 
         if (label == GifBlockLabel.IMAGE_DESCRIPTOR) {
           var descriptor = input.ReadImageDescriptor();
-          System.out.println(descriptor);
+          //System.out.println(descriptor);
 
           if (descriptor.isLocalColorTablePresent) {
             var colorTable = input.ReadColorTable(descriptor.localColorTableSize);
-            System.out.println(Arrays.toString(colorTable));
+            //System.out.println(Arrays.toString(colorTable));
           }
 
           var imageData = input.ReadTableBasedImageData();
-          System.out.println(imageData);
+          //System.out.println("Image data");
+          //System.out.println(imageData);
 
           // TODO decoding
 
+          //System.out.println("Encoded indices:");
+          //IoUtils.WriteByteArrayBin(System.out, imageData.imageData);
 
+          try {
+            if (imageData.imageData != null) {
+              byte[] decodedData = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
+
+              //System.out.println("Encoded indices:");
+              //IoUtils.WriteByteArrayBin(System.out, imageData.imageData);
+
+              //System.out.println("Decoded indices:");
+              //IoUtils.WriteByteArrayBin(System.out, decodedData);
+            }
+          } catch (Exception e) {
+            //System.out.println("Decoding failed");
+            //System.out.println(e.getMessage());
+            e.printStackTrace();
+          }
 
           // TODO debug
           ++frames;
-          if (frames == 5) {
+          if (frames == 100) {
             break;
           }
 
@@ -65,29 +84,29 @@ public class Main {
 
         if (label == GifBlockLabel.EXTENSION) {
           var extensionLabel  = input.ReadExtensionLabel();
-          System.out.println(extensionLabel);
+          //System.out.println(extensionLabel);
 
           if (extensionLabel == GifExtensionLabel.COMMENT) {
             var extension = input.ReadCommentExtension();
-            System.out.println(extension);
+            //System.out.println(extension);
             continue;
           }
 
           if (extensionLabel == GifExtensionLabel.APPLICATION) {
             var extension = input.ReadApplicationExtension();
-            System.out.println(extension);
+            //System.out.println(extension);
             continue;
           }
 
           if (extensionLabel == GifExtensionLabel.PLAIN_TEXT) {
             var extension = input.ReadPlainTextExtension();
-            System.out.println(extension);
+            //System.out.println(extension);
             continue;
           }
 
           if (extensionLabel == GifExtensionLabel.GRAPHICS_CONTROL) {
             var extension = input.ReadGraphicControlExtension();
-            System.out.println(extension);
+            //System.out.println(extension);
             continue;
           }
         }

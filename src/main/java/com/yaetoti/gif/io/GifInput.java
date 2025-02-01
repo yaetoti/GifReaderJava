@@ -226,8 +226,10 @@ public final class GifInput {
     }
 
     byte[] result = new byte[size];
+    int offset = 0;
     for (byte[] subBlock : subBlocks) {
-      System.arraycopy(subBlock, 0, result, 0, subBlock.length);
+      System.arraycopy(subBlock, 0, result, offset, subBlock.length);
+      offset += subBlock.length;
     }
 
     return result;

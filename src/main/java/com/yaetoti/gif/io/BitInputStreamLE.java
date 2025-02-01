@@ -4,14 +4,14 @@ import com.yaetoti.gif.utils.BitUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-public final class BitInputStream {
+public final class BitInputStreamLE {
   private byte[] m_buffer;
   private long m_bufferBits;
   private long m_offsetBits;
   private int m_position;
   private int m_positionBits;
 
-  public BitInputStream(byte @NotNull[] buffer) {
+  public BitInputStreamLE(byte @NotNull[] buffer) {
     m_buffer = buffer;
     m_bufferBits = (long)buffer.length * Byte.SIZE;
     m_offsetBits = 0;
@@ -19,7 +19,7 @@ public final class BitInputStream {
     m_positionBits = 0;
   }
 
-  public BitInputStream(byte @NotNull[] buffer, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long offsetBits, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long bufferBits) {
+  public BitInputStreamLE(byte @NotNull[] buffer, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long offsetBits, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long bufferBits) {
     m_buffer = buffer;
     m_bufferBits = bufferBits;
     m_offsetBits = offsetBits;

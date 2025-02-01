@@ -3,6 +3,7 @@ package com.yaetoti.gif;
 import com.yaetoti.gif.io.GifInput;
 import com.yaetoti.gif.io.LittleEndianDataInput;
 import com.yaetoti.gif.utils.*;
+import com.yaetoti.ppm.PpmImage;
 
 import java.io.*;
 import java.util.Arrays;
@@ -12,10 +13,13 @@ public class Main {
     //WriteByteArray(new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18 });
 
 
-    RandomAccessFile file = new RandomAccessFile("image.gif", "r");
-    //RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
+    //RandomAccessFile file = new RandomAccessFile("image.gif", "r");
+    RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
     //RandomAccessFile file = new RandomAccessFile("E:\\PremiereExport\\Miraculous-london-Full-HD.gif", "r");
     GifInput input = new GifInput(new LittleEndianDataInput(file));
+
+    // TODO test
+    byte[] globalColorTable = null;
 
     int frames = 0;
 
@@ -28,6 +32,11 @@ public class Main {
       //System.out.println(lsd);
       if (lsd.isGlobalColorTablePresent) {
         var colorTable = input.ReadColorTable(lsd.globalColorTableSize);
+
+        // TODO test
+        System.out.println("Saving global color table");
+        globalColorTable = Arrays.copyOf(colorTable, colorTable.length);
+
         //System.out.println(Arrays.toString(colorTable));
       }
 
@@ -66,6 +75,23 @@ public class Main {
 
               //System.out.println("Decoded indices:");
               //IoUtils.WriteByteArrayBin(System.out, decodedData);
+
+              // TODO save to ppm
+              // Data to colors
+
+              if (globalColorTable != null) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                for (byte index : decodedData) {
+                  int intIndex = index & 0xff;
+                  out.write(globalColorTable[intIndex * 3]);
+                  out.write(globalColorTable[intIndex * 3 + 1]);
+                  out.write(globalColorTable[intIndex * 3 + 2]);
+                }
+
+                System.out.println("Writing data to a file");
+                new PpmImage(descriptor.imageWidth, descriptor.imageHeight, out.toByteArray()).SaveToFile("Masterpiece.ppm");
+                System.out.println("Shaved");
+              }
             }
           } catch (Exception e) {
             //System.out.println("Decoding failed");

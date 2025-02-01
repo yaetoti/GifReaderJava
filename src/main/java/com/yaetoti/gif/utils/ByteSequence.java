@@ -28,6 +28,14 @@ public final class ByteSequence {
     return new ByteSequence(bytes);
   }
 
+  public byte At(int index) {
+    return m_buffer[index];
+  }
+
+  public byte[] ToByteArray() {
+    return Arrays.copyOf(m_buffer, m_buffer.length);
+  }
+
   public ByteSequence Append(byte value) {
     byte[] bytes = new byte[m_buffer.length + 1];
     System.arraycopy(m_buffer, 0, bytes, 0, m_buffer.length);

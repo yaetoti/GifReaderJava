@@ -1,11 +1,10 @@
 package com.yaetoti.gif.blocks;
 
-import com.yaetoti.gif.utils.GifExtensionLabel;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-public final class GifPlainTextExtension {
+public final class GifPlainTextExtension extends GifElement {
   public int textGridLeftPosition;
   public int textGridTopPosition;
   public int textGridWidth;
@@ -15,6 +14,10 @@ public final class GifPlainTextExtension {
   public int textForegroundColorIndex;
   public int textBackgroundColorIndex;
   public byte @Nullable[] plainTextData;
+
+  public GifPlainTextExtension() {
+    super(GifElementType.PLAIN_TEXT_EXTENSION);
+  }
 
   @Override
   public String toString() {

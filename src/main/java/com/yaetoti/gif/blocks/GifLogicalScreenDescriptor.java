@@ -1,6 +1,6 @@
 package com.yaetoti.gif.blocks;
 
-public final class GifLogicalScreenDescriptor {
+public final class GifLogicalScreenDescriptor extends GifElement {
   /// (unsigned word)
   public int logicalScreenWidth;
   /// (unsigned word)
@@ -15,6 +15,10 @@ public final class GifLogicalScreenDescriptor {
   public int pixelAspectRatio;
   public boolean isGlobalColorTableSorted;
   public boolean isGlobalColorTablePresent;
+
+  public GifLogicalScreenDescriptor() {
+    super(GifElementType.LOGICAL_SCREEN_DESCRIPTOR);
+  }
 
   @Override
   public String toString() {

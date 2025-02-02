@@ -13,8 +13,8 @@ public class Main {
     //WriteByteArray(new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18 });
 
 
-    //RandomAccessFile file = new RandomAccessFile("image.gif", "r");
-    RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
+    RandomAccessFile file = new RandomAccessFile("image.gif", "r");
+    //RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
     //RandomAccessFile file = new RandomAccessFile("E:\\PremiereExport\\Miraculous-london-Full-HD.gif", "r");
     GifInput input = new GifInput(new LittleEndianDataInput(file));
 
@@ -67,7 +67,7 @@ public class Main {
           //IoUtils.WriteByteArrayBin(System.out, imageData.imageData);
 
           try {
-            if (imageData.imageData != null) {
+            if (imageData.imageData != null && frames == 10) {
               byte[] decodedData = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
 
               //System.out.println("Encoded indices:");
@@ -101,7 +101,7 @@ public class Main {
 
           // TODO debug
           ++frames;
-          if (frames == 100) {
+          if (frames == 190) {
             break;
           }
 
@@ -132,7 +132,7 @@ public class Main {
 
           if (extensionLabel == GifExtensionLabel.GRAPHICS_CONTROL) {
             var extension = input.ReadGraphicControlExtension();
-            //System.out.println(extension);
+            System.out.println(extension);
             continue;
           }
         }

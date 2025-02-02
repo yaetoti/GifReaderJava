@@ -1,6 +1,6 @@
 package com.yaetoti.gif.blocks;
 
-public class GifImageDescriptor {
+public class GifImageDescriptor extends GifElement {
   public int imageLeftPosition;
   public int imageTopPosition;
   public int imageWidth;
@@ -9,6 +9,10 @@ public class GifImageDescriptor {
   public boolean isInterlaced;
   public boolean isLocalColorTablePresent;
   public boolean isLocalColorTableSorted;
+
+  public GifImageDescriptor() {
+    super(GifElementType.IMAGE_DESCRIPTOR);
+  }
 
   @Override
   public String toString() {

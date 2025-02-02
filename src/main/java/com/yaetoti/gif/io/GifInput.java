@@ -36,15 +36,7 @@ public final class GifInput {
   public GifVersion ReadHeader() throws IOException {
     byte[] signature = new byte[6];
     m_input.readFully(signature);
-    String signatureString = new String(signature);
-    if (signatureString.equals("GIF87a")) {
-      return GifVersion.GIF87a;
-    }
-    if (signatureString.equals("GIF89a")) {
-      return GifVersion.GIF89a;
-    }
-
-    throw new InvalidFormatException("Invalid signature: " + signatureString);
+    return GifVersion.FromSignature(new String(signature));
   }
 
   @NotNull

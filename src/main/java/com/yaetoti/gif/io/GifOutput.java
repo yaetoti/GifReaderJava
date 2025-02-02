@@ -21,8 +21,8 @@ public final class GifOutput {
     m_output = output;
   }
 
-  public void WriteHeader(@NotNull GifVersion version) throws IOException {
-    m_output.write(version.GetSignature().getBytes(StandardCharsets.US_ASCII));
+  public void WriteHeader(@NotNull GifHeader element) throws IOException {
+    m_output.write(element.version.GetSignature().getBytes(StandardCharsets.US_ASCII));
   }
 
   public void WriteLogicalScreenDescriptor(@NotNull GifLogicalScreenDescriptor element) throws IOException {
@@ -38,8 +38,8 @@ public final class GifOutput {
     m_output.writeByte(element.pixelAspectRatio);
   }
 
-  public void WriteColorTable(byte @NotNull[] table) throws IOException {
-    m_output.write(table);
+  public void WriteColorTable(@NotNull GifColorTable element) throws IOException {
+    m_output.write(element.table);
   }
 
   public void WriteGraphicControlExtension(@NotNull GifGraphicsControlExtension element) throws IOException {
@@ -79,8 +79,6 @@ public final class GifOutput {
 
   public void WriteImageDescriptor(@NotNull GifImageDescriptor element) throws IOException {
     m_output.writeByte(GifBlockLabel.IMAGE_DESCRIPTOR_ID);
-
-    // TODO create trailer
 
     m_output.writeShort(element.imageLeftPosition);
     m_output.writeShort(element.imageTopPosition);

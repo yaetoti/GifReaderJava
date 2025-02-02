@@ -8,6 +8,10 @@ import com.yaetoti.ppm.PpmImage;
 import java.io.*;
 import java.util.Arrays;
 
+// TODO return blocks from all read methods
+// TODO Add WriteBlock method?
+// TODO Can't add readBlock because it must be context aware. But can create a class for it
+
 public class Main {
   public static void main(String[] args) throws IOException {
     //WriteByteArray(new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18 });
@@ -24,8 +28,6 @@ public class Main {
     int frames = 0;
 
     try (ScopedTimer timer = new ScopedTimer("GIF reading")) {
-
-
       var version = input.ReadHeader();
       //System.out.println(version);
       var lsd = input.ReadLogicalScreenDescriptor();
@@ -35,7 +37,7 @@ public class Main {
 
         // TODO test
         System.out.println("Saving global color table");
-        globalColorTable = Arrays.copyOf(colorTable, colorTable.length);
+        globalColorTable = Arrays.copyOf(colorTable.table, colorTable.table.length);
 
         //System.out.println(Arrays.toString(colorTable));
       }

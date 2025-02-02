@@ -33,10 +33,14 @@ public final class GifInput {
    * @throws InvalidFormatException if signature is invalid
    */
   @NotNull
-  public GifVersion ReadHeader() throws IOException {
+  public GifHeader ReadHeader() throws IOException {
     byte[] signature = new byte[6];
     m_input.readFully(signature);
-    return GifVersion.FromSignature(new String(signature));
+
+    GifHeader header = new GifHeader();
+    header.version = GifVersion.FromSignature(new String(signature));
+
+    return header;
   }
 
   @NotNull
@@ -57,10 +61,15 @@ public final class GifInput {
     return descriptor;
   }
 
-  public byte @NotNull[] ReadColorTable(int size) throws IOException {
+  @NotNull
+  public GifColorTable ReadColorTable(int size) throws IOException {
     byte[] colorTable = new byte[3 * size];
     m_input.readFully(colorTable);
-    return colorTable;
+
+    GifColorTable table = new GifColorTable();
+    table.table = colorTable;
+
+    return table;
   }
 
   @NotNull

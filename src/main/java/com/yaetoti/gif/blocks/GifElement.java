@@ -13,4 +13,9 @@ public abstract class GifElement {
   public GifElementType GetElementType() {
     return m_type;
   }
+
+  @SuppressWarnings("unchecked")
+  public <T extends GifElement> T As() {
+    return (T) this;
+  }
 }

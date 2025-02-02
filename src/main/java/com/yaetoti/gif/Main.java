@@ -1,147 +1,103 @@
 package com.yaetoti.gif;
 
-import com.yaetoti.gif.io.GifInput;
+import com.yaetoti.gif.blocks.*;
+import com.yaetoti.gif.io.GifReader;
 import com.yaetoti.gif.io.LittleEndianDataInput;
 import com.yaetoti.gif.utils.*;
 import com.yaetoti.ppm.PpmImage;
 
 import java.io.*;
-import java.util.Arrays;
-
-// TODO return blocks from all read methods
-// TODO Add WriteBlock method?
-// TODO Can't add readBlock because it must be context aware. But can create a class for it
 
 public class Main {
   public static void main(String[] args) throws IOException {
-    //WriteByteArray(new byte[] { 0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18 });
-
-
-    RandomAccessFile file = new RandomAccessFile("image.gif", "r");
+    //RandomAccessFile file = new RandomAccessFile("image.gif", "r");
     //RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
-    //RandomAccessFile file = new RandomAccessFile("E:\\PremiereExport\\Miraculous-london-Full-HD.gif", "r");
-    GifInput input = new GifInput(new LittleEndianDataInput(file));
+    RandomAccessFile file = new RandomAccessFile("E:\\PremiereExport\\Miraculous-london-Full-HD.gif", "r");
+    GifReader reader = new GifReader(new LittleEndianDataInput(file));
 
-    // TODO test
     byte[] globalColorTable = null;
-
+    byte[] localColorTable = null;
     int frames = 0;
 
-    try (ScopedTimer timer = new ScopedTimer("GIF reading")) {
-      var version = input.ReadHeader();
-      //System.out.println(version);
-      var lsd = input.ReadLogicalScreenDescriptor();
-      //System.out.println(lsd);
-      if (lsd.isGlobalColorTablePresent) {
-        var colorTable = input.ReadColorTable(lsd.globalColorTableSize);
+    int width = 0;
+    int height = 0;
 
-        // TODO test
-        System.out.println("Saving global color table");
-        globalColorTable = Arrays.copyOf(colorTable.table, colorTable.table.length);
-
-        //System.out.println(Arrays.toString(colorTable));
-      }
-
+    try (ScopedTimer timer = new ScopedTimer("GIF Reading")) {
       while (true) {
-        var label = input.ReadBlockLabel();
-        //System.out.println(label);
+        GifElement element = reader.ReadElement();
+        GifElementType type = element.GetElementType();
 
-        if (label == GifBlockLabel.TRAILER) {
+        // Trailer - exit
+        if (type == GifElementType.TRAILER) {
           break;
         }
 
-        if (label == GifBlockLabel.IMAGE_DESCRIPTOR) {
-          var descriptor = input.ReadImageDescriptor();
-          //System.out.println(descriptor);
-
-          if (descriptor.isLocalColorTablePresent) {
-            var colorTable = input.ReadColorTable(descriptor.localColorTableSize);
-            //System.out.println(Arrays.toString(colorTable));
+        // Save color table
+        if (type == GifElementType.COLOR_TABLE) {
+          if (globalColorTable == null) {
+            globalColorTable = element.<GifColorTable>As().table;
+            continue;
           }
 
-          var imageData = input.ReadTableBasedImageData();
-          //System.out.println("Image data");
-          //System.out.println(imageData);
-
-          // TODO decoding
-
-          //System.out.println("Encoded indices:");
-          //IoUtils.WriteByteArrayBin(System.out, imageData.imageData);
-
-          try {
-            if (imageData.imageData != null && frames == 10) {
-              byte[] decodedData = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
-
-              //System.out.println("Encoded indices:");
-              //IoUtils.WriteByteArrayBin(System.out, imageData.imageData);
-
-              //System.out.println("Decoded indices:");
-              //IoUtils.WriteByteArrayBin(System.out, decodedData);
-
-              // TODO save to ppm
-              // Data to colors
-
-              if (globalColorTable != null) {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                for (byte index : decodedData) {
-                  int intIndex = index & 0xff;
-                  out.write(globalColorTable[intIndex * 3]);
-                  out.write(globalColorTable[intIndex * 3 + 1]);
-                  out.write(globalColorTable[intIndex * 3 + 2]);
-                }
-
-                System.out.println("Writing data to a file");
-                new PpmImage(descriptor.imageWidth, descriptor.imageHeight, out.toByteArray()).SaveToFile("Masterpiece.ppm");
-                System.out.println("Shaved");
-              }
-            }
-          } catch (Exception e) {
-            //System.out.println("Decoding failed");
-            //System.out.println(e.getMessage());
-            e.printStackTrace();
-          }
-
-          // TODO debug
-          ++frames;
-          if (frames == 190) {
-            break;
-          }
-
+          localColorTable = element.<GifColorTable>As().table;
           continue;
         }
 
-        if (label == GifBlockLabel.EXTENSION) {
-          var extensionLabel  = input.ReadExtensionLabel();
-          //System.out.println(extensionLabel);
+        // Save image resolution
+        if (type == GifElementType.IMAGE_DESCRIPTOR) {
+          GifImageDescriptor descriptor = element.As();
+          width = descriptor.imageWidth;
+          height = descriptor.imageHeight;
+          continue;
+        }
 
-          if (extensionLabel == GifExtensionLabel.COMMENT) {
-            var extension = input.ReadCommentExtension();
-            //System.out.println(extension);
+        // Save specific frame into PPM
+        if (type == GifElementType.TABLE_BASED_IMAGE_DATA) {
+          // Limit frames count
+          ++frames;
+          if (frames == 200) {
+            break;
+          }
+
+//          // Check for frame number
+//          if (frames % 10 != 0) {
+//            continue;
+//          }
+
+          // Check for image data availability
+          GifTableBasedImageData imageData = element.As();
+          if (imageData.imageData == null) {
             continue;
           }
 
-          if (extensionLabel == GifExtensionLabel.APPLICATION) {
-            var extension = input.ReadApplicationExtension();
-            //System.out.println(extension);
+          // Check for color table availability
+          byte[] activeColorTable = globalColorTable == null ? localColorTable : globalColorTable;
+          if (activeColorTable == null) {
             continue;
           }
 
-          if (extensionLabel == GifExtensionLabel.PLAIN_TEXT) {
-            var extension = input.ReadPlainTextExtension();
-            //System.out.println(extension);
-            continue;
+          // Decode indices
+          byte[] indices = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
+
+          // Add corresponding colors to a buffer
+          ByteArrayOutputStream out = new ByteArrayOutputStream();
+          for (byte index : indices) {
+            int intIndex = index & 0xff;
+            out.write(activeColorTable[intIndex * 3]);
+            out.write(activeColorTable[intIndex * 3 + 1]);
+            out.write(activeColorTable[intIndex * 3 + 2]);
           }
 
-          if (extensionLabel == GifExtensionLabel.GRAPHICS_CONTROL) {
-            var extension = input.ReadGraphicControlExtension();
-            System.out.println(extension);
-            continue;
-          }
+          // Save to PPM
+          new PpmImage(width, height, out.toByteArray()).SaveToFile("frames/Masterpiece" + frames + ".ppm");
+          System.out.println("Saved");
+          continue;
         }
       }
     }
 
     file.close();
+    return;
 
 //
 //    for (int i = 0; i < result.length; i++) {

@@ -21,8 +21,50 @@ public final class GifOutput {
     m_output = output;
   }
 
+  public void WriteElement(@NotNull GifElement element) throws IOException {
+    switch (element.GetElementType()) {
+    case HEADER -> {
+      WriteHeader(element.As());
+    }
+    case LOGICAL_SCREEN_DESCRIPTOR -> {
+      WriteLogicalScreenDescriptor(element.As());
+    }
+    case COLOR_TABLE -> {
+      WriteColorTable(element.As());
+    }
+    case IMAGE_DESCRIPTOR -> {
+      WriteImageDescriptor(element.As());
+    }
+    case TABLE_BASED_IMAGE_DATA -> {
+      WriteTableBasedImageData(element.As());
+    }
+    case TRAILER -> {
+      WriteTrailer(element.As());
+    }
+    case APPLICATION_EXTENSION -> {
+      WriteApplicationExtension(element.As());
+    }
+    case GRAPHIC_CONTROL_EXTENSION -> {
+      WriteGraphicControlExtension(element.As());
+    }
+    case COMMENT_EXTENSION -> {
+      WriteCommentExtension(element.As());
+    }
+    case PLAIN_TEXT_EXTENSION -> {
+      WritePlainTextExtension(element.As());
+    }
+    default -> {
+      throw new IllegalStateException("Unexpected value: " + element.GetElementType());
+    }
+    }
+  }
+
   public void WriteHeader(@NotNull GifHeader element) throws IOException {
     m_output.write(element.version.GetSignature().getBytes(StandardCharsets.US_ASCII));
+  }
+
+  public void WriteTrailer(@NotNull GifTrailer element) throws IOException {
+    m_output.writeByte(GifBlockLabel.TRAILER_ID);
   }
 
   public void WriteLogicalScreenDescriptor(@NotNull GifLogicalScreenDescriptor element) throws IOException {

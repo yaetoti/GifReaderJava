@@ -1,6 +1,5 @@
 package com.yaetoti.gif.io;
 
-import com.yaetoti.gif.InvalidFormatException;
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.utils.DisposalMethod;
 import com.yaetoti.gif.utils.GifBlockLabel;
@@ -30,7 +29,7 @@ public final class GifInput {
    * Reads GIF header (signature)
    * @return Gif version
    * @throws IOException if IO error occurs
-   * @throws InvalidFormatException if signature is invalid
+   * @throws GifInvalidFormatException if signature is invalid
    */
   @NotNull
   public GifHeader ReadHeader() throws IOException {
@@ -76,7 +75,7 @@ public final class GifInput {
   public GifGraphicsControlExtension ReadGraphicControlExtension() throws IOException {
     int blockSize = m_input.readUnsignedByte();
     if (blockSize != 4) {
-      throw new InvalidFormatException("Invalid Graphics Control Extension sub-block size");
+      throw new GifInvalidFormatException("Invalid Graphics Control Extension sub-block size");
     }
 
     int packed = m_input.readUnsignedByte();
@@ -89,7 +88,7 @@ public final class GifInput {
     extension.transparentColorIndex = m_input.readUnsignedByte();
 
     if (m_input.readUnsignedByte() != 0) {
-      throw new InvalidFormatException("Invalid Graphics Control Extension terminator");
+      throw new GifInvalidFormatException("Invalid Graphics Control Extension terminator");
     }
 
     return extension;
@@ -99,7 +98,7 @@ public final class GifInput {
   public GifPlainTextExtension ReadPlainTextExtension() throws IOException {
     int blockSize = m_input.readUnsignedByte();
     if (blockSize != 12) {
-      throw new InvalidFormatException("Invalid Plain Text Extension sub-block size");
+      throw new GifInvalidFormatException("Invalid Plain Text Extension sub-block size");
     }
 
     GifPlainTextExtension extension = new GifPlainTextExtension();
@@ -145,7 +144,7 @@ public final class GifInput {
   public GifApplicationExtension ReadApplicationExtension() throws IOException {
     int blockSize = m_input.readUnsignedByte();
     if (blockSize != 11) {
-      throw new InvalidFormatException("Invalid Application Extension sub-block size");
+      throw new GifInvalidFormatException("Invalid Application Extension sub-block size");
     }
 
     byte[] identifierBytes = new byte[8];

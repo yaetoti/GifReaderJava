@@ -2,7 +2,7 @@ package com.yaetoti.gif;
 
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.io.GifReader;
-import com.yaetoti.gif.io.LittleEndianDataInput;
+import com.yaetoti.gif.io.DataInputLE;
 import com.yaetoti.gif.utils.*;
 import com.yaetoti.ppm.PpmImage;
 
@@ -13,7 +13,7 @@ public class Main {
     //RandomAccessFile file = new RandomAccessFile("image.gif", "r");
     //RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
     RandomAccessFile file = new RandomAccessFile("E:\\PremiereExport\\Miraculous-london-Full-HD.gif", "r");
-    GifReader reader = new GifReader(new LittleEndianDataInput(file));
+    GifReader reader = new GifReader(new DataInputLE(file));
 
     byte[] globalColorTable = null;
     byte[] localColorTable = null;
@@ -99,17 +99,7 @@ public class Main {
     file.close();
     return;
 
-//
-//    for (int i = 0; i < result.length; i++) {
-//      ////System.out.println("[" + i + "]: " + result[i]);
-//    }
 
-
-    // Read from any stream
-    // Read from memory
-    // Read from file
-
-    // Read next block
     // Read all blocks
     // Read block #N
 
@@ -124,19 +114,7 @@ public class Main {
     // - Image Table Data
 
 
-    // Get how many bytes we consumed on error to rewind
-
-
     // Determinism concept
     // - Skip plain text frames because we don't need them
-
-    // Problems:
-    // - How do we analyze before writing? - Read into buffer - Write buffer - Use stream-wrapper over buffer
-
-
-//    RandomAccessFile file = new RandomAccessFile("image.gif", "r");
-//    file.close();
-//
-//    new GifLexer().Parse(new DataInputStream(new FileInputStream("image.gif")));
   }
 }

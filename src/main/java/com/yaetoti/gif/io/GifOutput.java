@@ -5,19 +5,18 @@ import com.yaetoti.gif.utils.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.DataOutput;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 public final class GifOutput {
   @NotNull
-  private DataOutput m_output;
+  private DataOutputLE m_output;
 
-  public GifOutput(@NotNull DataOutput output) {
+  public GifOutput(@NotNull DataOutputLE output) {
     m_output = output;
   }
 
-  public void SetOutput(@NotNull DataOutput output) {
+  public void SetOutput(@NotNull DataOutputLE output) {
     m_output = output;
   }
 

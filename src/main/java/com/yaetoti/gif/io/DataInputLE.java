@@ -5,11 +5,11 @@ import org.jetbrains.annotations.NotNull;
 import java.io.DataInput;
 import java.io.IOException;
 
-public class LittleEndianDataInput implements DataInput {
+public class DataInputLE implements DataInput {
   private final DataInput m_input;
   private final byte[] buffer = new byte[Long.BYTES];
 
-  public LittleEndianDataInput(DataInput input) {
+  public DataInputLE(DataInput input) {
     m_input = input;
   }
 

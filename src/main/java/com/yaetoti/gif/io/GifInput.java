@@ -8,20 +8,19 @@ import com.yaetoti.gif.utils.GifVersion;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.DataInput;
 import java.io.EOFException;
 import java.io.IOException;
 import java.util.LinkedList;
 
 public final class GifInput {
   @NotNull
-  private DataInput m_input;
+  private DataInputLE m_input;
 
-  public GifInput(@NotNull DataInput input) {
+  public GifInput(@NotNull DataInputLE input) {
     m_input = input;
   }
 
-  public void SetInput(@NotNull DataInput input) {
+  public void SetInput(@NotNull DataInputLE input) {
     m_input = input;
   }
 

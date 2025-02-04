@@ -109,6 +109,10 @@ public final class GifReader {
       throw new GifInvalidFormatException("Unexpected extension label: " + extensionLabel);
     }
 
+    if (blockLabel == GifBlockLabel.IMAGE_DESCRIPTOR) {
+      return HandleImageDescriptorFragment();
+    }
+
     throw new GifInvalidFormatException("Unexpected block label: " + blockLabel);
   }
 
@@ -116,16 +120,7 @@ public final class GifReader {
   private GifElement HandleNextGraphicsBlock() throws IOException {
     GifBlockLabel blockLabel = m_input.ReadBlockLabel();
     if (blockLabel == GifBlockLabel.IMAGE_DESCRIPTOR) {
-      GifImageDescriptor element = m_input.ReadImageDescriptor();
-      if (element.isLocalColorTablePresent) {
-        m_nextColorTableSize = element.localColorTableSize;
-        m_state = State.NEXT_LOCAL_COLOR_TABLE;
-      }
-      else {
-        m_state = State.NEXT_TABLE_BASED_IMAGE_DATA;
-      }
-
-      return element;
+      return HandleImageDescriptorFragment();
     }
 
     if (blockLabel == GifBlockLabel.EXTENSION) {
@@ -140,6 +135,20 @@ public final class GifReader {
     }
 
     throw new GifInvalidFormatException("Unexpected block label: " + blockLabel);
+  }
+
+  @NotNull
+  private GifElement HandleImageDescriptorFragment() throws IOException {
+    GifImageDescriptor element = m_input.ReadImageDescriptor();
+    if (element.isLocalColorTablePresent) {
+      m_nextColorTableSize = element.localColorTableSize;
+      m_state = State.NEXT_LOCAL_COLOR_TABLE;
+    }
+    else {
+      m_state = State.NEXT_TABLE_BASED_IMAGE_DATA;
+    }
+
+    return element;
   }
 
   @NotNull

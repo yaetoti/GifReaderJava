@@ -4,6 +4,7 @@ import com.yaetoti.gif.utils.GifLzwUtils;
 import com.yaetoti.utils.IoUtils;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 public class LzwMain {
   public static void main(String[] args) throws IOException {
@@ -26,17 +27,36 @@ public class LzwMain {
 //    System.out.println(in.GetShort(3));
 
 
-    byte[] array0 = new byte[] { 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1 };
+//    byte[] array0 = new byte[] { 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1 };
+//    System.out.println("Original array:");
+//    IoUtils.WriteByteArrayHex(System.out, array0);
+//
+//    byte[] array1 = GifLzwUtils.encode(2, array0);
+//    System.out.println("Encoded array:");
+//    IoUtils.WriteByteArrayBin(System.out, array1);
+//
+//    byte[] array2 = GifLzwUtils.decode(2, array1);
+//    System.out.println("Decoded array:");
+//    IoUtils.WriteByteArrayHex(System.out, array2);
+
+
+    // Long sequence
+    byte[] array0 = new byte[16384];
+    Arrays.fill(array0, (byte)254);
+
     System.out.println("Original array:");
     IoUtils.WriteByteArrayHex(System.out, array0);
 
-    byte[] array1 = GifLzwUtils.encode(2, array0);
+    byte[] array1 = GifLzwUtils.encode(8, array0);
     System.out.println("Encoded array:");
-    IoUtils.WriteByteArrayBin(System.out, array1);
+    IoUtils.WriteByteArrayHex(System.out, array1);
 
-    byte[] array2 = GifLzwUtils.decode(2, array1);
+    byte[] array2 = GifLzwUtils.decode(8, array1);
     System.out.println("Decoded array:");
     IoUtils.WriteByteArrayHex(System.out, array2);
+
+    assert Arrays.equals(array0, array2);
+
 
 //    BitInputStream in = new BitInputStream(new byte[] {
 //      (byte) 0b11100011,

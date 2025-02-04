@@ -8,6 +8,12 @@ import java.util.*;
 
 public final class MedianCut {
   public static int[] GetRanges(Collection<ByteSequence> sequences, int indexCount) {
+    if (sequences.size() <= 1) {
+      int[] ranges = new int[sequences.size()];
+      Arrays.fill(ranges, 0);
+      return ranges;
+    }
+
     int[] lowest = new int[indexCount];
     int[] highest = new int[indexCount];
     Arrays.fill(lowest, Integer.MAX_VALUE);
@@ -20,7 +26,8 @@ public final class MedianCut {
         if (value < lowest[index]) {
           lowest[index] = value;
         }
-        else if (value > highest[index]) {
+
+        if (value > highest[index]) {
           highest[index] = value;
         }
       }
@@ -60,10 +67,10 @@ public final class MedianCut {
       int diff1 = ArrayUtils.Sum(GetRanges(o1, 3));
       int diff2 = ArrayUtils.Sum(GetRanges(o2, 3));
       if (diff1 == diff2) {
-        return Integer.compare(o1.size(), o2.size());
+        return -Integer.compare(o1.size(), o2.size());
       }
 
-      return Integer.compare(diff1, diff2);
+      return -Integer.compare(diff1, diff2);
     });
     buckets.add(new ArrayList<>(colors));
 

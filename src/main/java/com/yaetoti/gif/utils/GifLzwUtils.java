@@ -9,6 +9,10 @@ import org.jetbrains.annotations.Range;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 import java.util.HashMap;
 
 public class GifLzwUtils {
@@ -57,18 +61,20 @@ public class GifLzwUtils {
 
       // Check for nextUnusedCode overflow
       int nextCodeBits = BitUtils.GetBitLength(nextUnusedCode);
+      nextUnusedCode += 1;
+
       if (nextCodeBits != codeBits) {
-        if (nextCodeBits > MAXIMUM_CODE_SIZE) {
+        if (BitUtils.GetBitLength(nextUnusedCode) > MAXIMUM_CODE_SIZE) {
           // If overflow - send clear code
           out.PutShort(clearCode, codeBits);
 
           // Reinit table
-          codeTable.clear();
           codeBits = minimumCodeSize + 1;
           nextUnusedCode = (short) (eoiCode + 1);
 
+          codeTable.clear();
           for (short index = 0; index < clearCode; ++index) {
-            codeTable.put(ByteSequence.Of((byte)index), index);
+            codeTable.put(ByteSequence.Of(index), index);
           }
 
           continue;
@@ -76,8 +82,6 @@ public class GifLzwUtils {
 
         codeBits = nextCodeBits;
       }
-
-      nextUnusedCode += 1;
     }
 
     // Send code for index buffer and EOI code

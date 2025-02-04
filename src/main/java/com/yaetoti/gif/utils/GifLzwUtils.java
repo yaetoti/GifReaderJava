@@ -1,7 +1,9 @@
 package com.yaetoti.gif.utils;
 
-import com.yaetoti.gif.io.BitInputStreamBE;
-import com.yaetoti.gif.io.BitOutputStreamBE;
+import com.yaetoti.io.BitInputStreamBE;
+import com.yaetoti.io.BitOutputStreamBE;
+import com.yaetoti.utils.BitUtils;
+import com.yaetoti.utils.ByteSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
@@ -38,6 +40,7 @@ public class GifLzwUtils {
     ByteSequence indexBuffer = ByteSequence.Of(data[0]);
 
     for (int nextByteIndex = 1; nextByteIndex < data.length; ++nextByteIndex) {
+      // break: out.m_bytes == 6225, nextByteIndex == 11889
       byte nextByte = data[nextByteIndex];
       ByteSequence nextIndexBuffer = indexBuffer.Append(nextByte);
 
@@ -63,6 +66,8 @@ public class GifLzwUtils {
             for (short index = 0; index < clearCode; ++index) {
               codeTable.put(ByteSequence.Of((byte)index), index);
             }
+
+            nextUnusedCode = (short) (eoiCode + 1);
 
             continue;
           }
@@ -166,6 +171,8 @@ public class GifLzwUtils {
           // Don't touch table with your dirty hands when overflow (c) GIF Specification
           // That's an error recovery mechanism. Just waiting for the clear code and using known sequences
           // TODO assert size
+          // TODO poo poo poo
+          //throw new GifLzwMalformedDataException("Code " + nextCodeBits + " too long");
           continue;
         }
 

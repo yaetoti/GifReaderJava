@@ -5,6 +5,7 @@ import com.yaetoti.gif.utils.DisposalMethod;
 import com.yaetoti.gif.utils.GifBlockLabel;
 import com.yaetoti.gif.utils.GifExtensionLabel;
 import com.yaetoti.gif.utils.GifVersion;
+import com.yaetoti.io.DataInputLE;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -60,12 +61,13 @@ public final class GifInput {
   }
 
   @NotNull
-  public GifColorTable ReadColorTable(int size) throws IOException {
+  public GifColorTable ReadColorTable(int size, GifColorTable.Type type) throws IOException {
     byte[] colorTable = new byte[3 * size];
     m_input.readFully(colorTable);
 
     GifColorTable table = new GifColorTable();
     table.table = colorTable;
+    table.type = type;
 
     return table;
   }

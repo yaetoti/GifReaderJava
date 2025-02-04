@@ -1,9 +1,7 @@
-package com.yaetoti.gif;
+package com.yaetoti;
 
-import com.yaetoti.gif.io.BitInputStreamBE;
-import com.yaetoti.gif.io.BitOutputStreamBE;
 import com.yaetoti.gif.utils.GifLzwUtils;
-import com.yaetoti.gif.utils.IoUtils;
+import com.yaetoti.utils.IoUtils;
 
 import java.io.IOException;
 

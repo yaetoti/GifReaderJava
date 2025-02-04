@@ -1,6 +1,6 @@
-package com.yaetoti.gif.io;
+package com.yaetoti.io;
 
-import com.yaetoti.gif.utils.BitUtils;
+import com.yaetoti.utils.BitUtils;
 import org.jetbrains.annotations.Range;
 
 import java.util.Arrays;
@@ -45,7 +45,7 @@ public final class BitOutputStreamLE {
 
   public void EnsureBytesFit(int amount) {
     assert amount > 0;
-    EnsureCapacityBytes(m_buffer.length + amount);
+    EnsureCapacityBytes(m_bytes + amount);
   }
 
   public void PutByte(byte value) {

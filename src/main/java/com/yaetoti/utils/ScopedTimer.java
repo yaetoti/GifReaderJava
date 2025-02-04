@@ -1,4 +1,4 @@
-package com.yaetoti.gif.utils;
+package com.yaetoti.utils;
 
 import java.util.concurrent.TimeUnit;
 

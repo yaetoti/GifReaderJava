@@ -1,4 +1,4 @@
-package com.yaetoti.gif.io;
+package com.yaetoti.io;
 
 import org.jetbrains.annotations.NotNull;
 

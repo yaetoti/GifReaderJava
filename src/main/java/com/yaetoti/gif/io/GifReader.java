@@ -3,33 +3,33 @@ package com.yaetoti.gif.io;
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.utils.GifBlockLabel;
 import com.yaetoti.gif.utils.GifExtensionLabel;
+import com.yaetoti.io.DataInputLE;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.DataInput;
 import java.io.IOException;
 
 public final class GifReader {
-  private GifInput m_input;
+  private final GifInput m_input;
   private State m_state;
   private int m_nextColorTableSize;
 
-  public GifReader(@NotNull DataInput in) {
+  public GifReader(@NotNull DataInputLE in) {
     m_input = new GifInput(in);
     m_state = State.NEXT_HEADER;
     m_nextColorTableSize = 0;
   }
 
-  void SetInput(@NotNull GifInput input) {
-    m_input = input;
+  void SetInput(@NotNull DataInputLE input) {
+    m_input.SetInput(input);
   }
 
   public void Reset() {
     m_state = State.NEXT_HEADER;
   }
 
-  public void Reset(@NotNull GifInput input) {
+  public void Reset(@NotNull DataInputLE input) {
     m_state = State.NEXT_HEADER;
-    m_input = input;
+    m_input.SetInput(input);
   }
 
   public State GetState() {
@@ -73,7 +73,7 @@ public final class GifReader {
 
   @NotNull
   private GifElement HandleNextGlobalColorTable() throws IOException {
-    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize);
+    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize, GifColorTable.Type.GLOBAL);
     m_state = State.NEXT_BLOCK;
     return element;
   }
@@ -144,7 +144,7 @@ public final class GifReader {
 
   @NotNull
   private GifElement HandleNextLocalColorTable() throws IOException {
-    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize);
+    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize, GifColorTable.Type.LOCAL);
     m_state = State.NEXT_TABLE_BASED_IMAGE_DATA;
     return element;
   }

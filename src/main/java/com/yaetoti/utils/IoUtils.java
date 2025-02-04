@@ -1,4 +1,4 @@
-package com.yaetoti.gif.utils;
+package com.yaetoti.utils;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -15,7 +15,7 @@ public class IoUtils {
         sb.append(": ");
       }
 
-      sb.append(String.format("%02X", array[pos]));
+      sb.append(StringUtils.ToHexString(array[pos]));
       ++pos;
 
       if (pos % 16 == 0) {

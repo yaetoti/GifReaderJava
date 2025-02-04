@@ -1,6 +1,6 @@
-package com.yaetoti.gif.io;
+package com.yaetoti.io;
 
-import com.yaetoti.gif.utils.BitUtils;
+import com.yaetoti.utils.BitUtils;
 import org.jetbrains.annotations.Range;
 
 import java.util.Arrays;
@@ -35,7 +35,6 @@ public final class BitOutputStreamBE {
   }
 
   public void EnsureCapacityBytes(int capacity) {
-    assert capacity > 0;
     int minGrowth = capacity - m_buffer.length;
     if (minGrowth > 0) {
       int prefLength = m_buffer.length + Math.max(minGrowth, m_buffer.length);
@@ -45,7 +44,7 @@ public final class BitOutputStreamBE {
 
   public void EnsureBytesFit(int amount) {
     assert amount > 0;
-    EnsureCapacityBytes(m_buffer.length + amount);
+    EnsureCapacityBytes(m_bytes + amount);
   }
 
   public void PutByte(byte value) {

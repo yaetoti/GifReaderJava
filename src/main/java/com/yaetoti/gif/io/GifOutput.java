@@ -2,6 +2,8 @@ package com.yaetoti.gif.io;
 
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.utils.*;
+import com.yaetoti.io.DataOutputLE;
+import com.yaetoti.utils.BitUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -70,7 +72,8 @@ public final class GifOutput {
     m_output.writeShort(element.logicalScreenWidth);
     m_output.writeShort(element.logicalScreenHeight);
     int packed = 0;
-    packed |= (BitUtils.GetBitLength(element.globalColorTableSize) - 1) & 0x7;
+    // -1 for file format and -1 for BitLength (need to shift 1 less time)
+    packed |= (BitUtils.GetBitLength(element.globalColorTableSize) - 2) & 0x7;
     packed |= element.isGlobalColorTableSorted ? (1 << 3) : 0;
     packed |= ((element.colorResolution - 1) & 0x7) << 4;
     packed |= element.isGlobalColorTablePresent ? (1 << 7) : 0;
@@ -126,7 +129,7 @@ public final class GifOutput {
     m_output.writeShort(element.imageWidth);
     m_output.writeShort(element.imageHeight);
     int packed = 0;
-    packed |= (BitUtils.GetBitLength(element.localColorTableSize) - 1) & 0x7;
+    packed |= (BitUtils.GetBitLength(element.localColorTableSize) - 2) & 0x7;
     // 2 Reserved
     packed |= element.isLocalColorTableSorted ? (1 << 5) : 0;
     packed |= element.isInterlaced ? (1 << 6) : 0;

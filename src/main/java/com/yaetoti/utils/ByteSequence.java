@@ -1,4 +1,4 @@
-package com.yaetoti.gif.utils;
+package com.yaetoti.utils;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -10,26 +10,39 @@ public final class ByteSequence {
     m_buffer = new byte[0];
   }
 
-  private ByteSequence(byte[] buffer) {
-    m_buffer = buffer;
+  private ByteSequence(byte... bytes) {
+    m_buffer = bytes;
   }
 
   public static ByteSequence Empty() {
     return new ByteSequence(new byte[0]);
   }
 
-  public static ByteSequence Of(byte value) {
-    return new ByteSequence(new byte[] { value });
-  }
-
-  public static ByteSequence Of(byte[] buffer) {
+  public static ByteSequence Of(byte... buffer) {
     byte[] bytes = new byte[buffer.length];
     System.arraycopy(buffer, 0, bytes, 0, buffer.length);
     return new ByteSequence(bytes);
   }
 
+  public static ByteSequence Of(int... buffer) {
+    byte[] bytes = new byte[buffer.length];
+    for (int i = 0; i < buffer.length; i++) {
+      bytes[i] = (byte) buffer[i];
+    }
+
+    return new ByteSequence(bytes);
+  }
+
   public byte At(int index) {
     return m_buffer[index];
+  }
+
+  public int AtUnsigned(int index) {
+    return m_buffer[index] & 0xFF;
+  }
+
+  public int Length() {
+    return m_buffer.length;
   }
 
   public byte[] ToByteArray() {
@@ -52,9 +65,15 @@ public final class ByteSequence {
 
   @Override
   public String toString() {
-    return "ByteSequence{" +
-      "m_buffer=" + Arrays.toString(m_buffer) +
-      '}';
+    StringBuilder sb = new StringBuilder();
+    sb.append("ByteSequence{");
+    for (byte b : m_buffer) {
+      sb.append(" ");
+      sb.append(StringUtils.ToHexString(b));
+    }
+
+    sb.append(" }");
+    return sb.toString();
   }
 
   @Override

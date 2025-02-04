@@ -1,14 +1,15 @@
-package com.yaetoti.gif;
+package com.yaetoti;
 
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.io.GifReader;
-import com.yaetoti.gif.io.DataInputLE;
+import com.yaetoti.io.DataInputLE;
 import com.yaetoti.gif.utils.*;
 import com.yaetoti.ppm.PpmImage;
+import com.yaetoti.utils.ScopedTimer;
 
 import java.io.*;
 
-public class Main {
+public class GifMain {
   public static void main(String[] args) throws IOException {
     //RandomAccessFile file = new RandomAccessFile("image.gif", "r");
     //RandomAccessFile file = new RandomAccessFile("image1.gif", "r");

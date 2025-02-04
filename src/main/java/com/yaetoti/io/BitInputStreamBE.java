@@ -1,17 +1,17 @@
-package com.yaetoti.gif.io;
+package com.yaetoti.io;
 
-import com.yaetoti.gif.utils.BitUtils;
+import com.yaetoti.utils.BitUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
-public final class BitInputStreamLE {
+public final class BitInputStreamBE {
   private byte[] m_buffer;
   private long m_bufferBits;
   private long m_offsetBits;
   private int m_position;
   private int m_positionBits;
 
-  public BitInputStreamLE(byte @NotNull[] buffer) {
+  public BitInputStreamBE(byte @NotNull [] buffer) {
     m_buffer = buffer;
     m_bufferBits = (long)buffer.length * Byte.SIZE;
     m_offsetBits = 0;
@@ -19,7 +19,7 @@ public final class BitInputStreamLE {
     m_positionBits = 0;
   }
 
-  public BitInputStreamLE(byte @NotNull[] buffer, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long offsetBits, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long bufferBits) {
+  public BitInputStreamBE(byte @NotNull[] buffer, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long offsetBits, @Range(from = 0, to = Integer.MAX_VALUE * 8L) long bufferBits) {
     m_buffer = buffer;
     m_bufferBits = bufferBits;
     m_offsetBits = offsetBits;
@@ -70,13 +70,29 @@ public final class BitInputStreamLE {
     }
 
     long result = 0;
+    int consumedBits = 0;
     while (bits != 0) {
+      // remainder = 11111000
+      // positionBits = 3
+      // bytes = 11111111
+      // value = 00000000
+      // bits = 12
+      // remainingBits = 8 - 3 = 5
+      // howMuchToTake = min(remainingBits, bits = min(5, 12) = 5
+      // howMuchToShiftRight = positionBits
+      // Mask "howMuchToTake" bytes
+
+      // howMuchToShiftLeft = consumedBits
+      // consumedBits += howMuchToTake
+
       int remainingBits = Byte.SIZE - m_positionBits;
       int howMuchToTake = Math.min(remainingBits, bits);
-      int howMuchToShiftRight = remainingBits - howMuchToTake;
+      int howMuchToShiftRight = m_positionBits;
+      int howMuchToShiftLeft = consumedBits;
       long part = BitUtils.MaskBits((long)(m_buffer[m_position] >>> howMuchToShiftRight), howMuchToTake);
+      result |= part << howMuchToShiftLeft;
       bits -= howMuchToTake;
-      result |= part << bits;
+      consumedBits += howMuchToTake;
 
       if (howMuchToTake == remainingBits) {
         m_position++;

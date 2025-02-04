@@ -69,11 +69,14 @@ public final class GifOutput {
   }
 
   public void WriteLogicalScreenDescriptor(@NotNull GifLogicalScreenDescriptor element) throws IOException {
+    assert element.globalColorTableSize > 1 && element.globalColorTableSize <= 256;
+
     m_output.writeShort(element.logicalScreenWidth);
     m_output.writeShort(element.logicalScreenHeight);
     int packed = 0;
     // -1 for file format and -1 for BitLength (need to shift 1 less time)
-    packed |= (BitUtils.GetBitLength(element.globalColorTableSize) - 2) & 0x7;
+    int power = BitUtils.GetBitLength(element.globalColorTableSize) - 2;
+    packed |= power & 0x7;
     packed |= element.isGlobalColorTableSorted ? (1 << 3) : 0;
     packed |= ((element.colorResolution - 1) & 0x7) << 4;
     packed |= element.isGlobalColorTablePresent ? (1 << 7) : 0;

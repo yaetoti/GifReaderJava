@@ -46,6 +46,7 @@ public class MainQuantizationTest {
       }
     }
 
+    // TODO
     return bestIndex;
   }
 
@@ -61,8 +62,8 @@ public class MainQuantizationTest {
   }
 
   public static void main(String[] args) throws IOException {
-    //var file = new RandomAccessFile("image1.gif", "r");
-    var file = new RandomAccessFile("image.gif", "r");
+    var file = new RandomAccessFile("image1.gif", "r");
+    //var file = new RandomAccessFile("image.gif", "r"); // TODO Arithmetic Exception
     var input = new DataInputLE(file);
 
     ArrayList<GifElement> elements = new ArrayList<>();
@@ -98,7 +99,7 @@ public class MainQuantizationTest {
     }
 
     int tableSize = lsd.globalColorTableSize;
-    int outputSize = BitUtils.GetBitLength(tableSize);
+    int outputSize = BitUtils.GetBitLength(tableSize) - 1;
 
     GifColorTable colorTable = elements.get(2).As();
     ArrayList<ByteSequence> palette = new ArrayList<>();
@@ -160,7 +161,7 @@ public class MainQuantizationTest {
           }
 
           // Remapping indices
-          byte[] indices = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
+          byte[] indices = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, encoded);
           for (int j = 0; j < indices.length; j++) {
             int currIndex = indices[j] & 0xFF;
             int newIndex = colorMap.get(currIndex);
@@ -168,8 +169,14 @@ public class MainQuantizationTest {
           }
 
           // Encoding data
-          imageData.imageData = GifLzwUtils.encode(8, indices);
-          output.WriteElement(imageData);
+          encoded = GifLzwUtils.encode(8, indices);
+
+          // Writing
+          GifTableBasedImageData newImageData = new GifTableBasedImageData();
+          newImageData.lzwMinimumCodeSize = imageData.lzwMinimumCodeSize;
+          newImageData.imageData = encoded;
+
+          output.WriteElement(newImageData);
           continue;
         }
 

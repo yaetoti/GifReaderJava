@@ -33,7 +33,7 @@ public class GifLzwUtils {
     // Init code table
     HashMap<ByteSequence, Short> codeTable = new HashMap<>();
     for (short index = 0; index < clearCode; ++index) {
-      codeTable.put(ByteSequence.Of((byte)index), index);
+      codeTable.put(ByteSequence.Of(index), index);
     }
 
     // Start reading
@@ -47,36 +47,37 @@ public class GifLzwUtils {
       if (codeTable.containsKey(nextIndexBuffer)) {
         // Sequence already exists
         indexBuffer = nextIndexBuffer;
-      } else {
-        // Add new code, output code for indexBuffer
-        codeTable.put(nextIndexBuffer, nextUnusedCode);
-        out.PutShort(codeTable.get(indexBuffer), codeBits);
-        indexBuffer = ByteSequence.Of(nextByte);
+        continue;
+      }
 
-        // Check for nextUnusedCode overflow
-        int nextCodeBits = BitUtils.GetBitLength(nextUnusedCode);
-        if (nextCodeBits != codeBits) {
-          if (nextCodeBits > MAXIMUM_CODE_SIZE) {
-            // If overflow - send clear code
-            out.PutShort(clearCode, codeBits);
+      // Add new code, output code for indexBuffer
+      codeTable.put(nextIndexBuffer, nextUnusedCode);
+      out.PutShort(codeTable.get(indexBuffer), codeBits);
+      indexBuffer = ByteSequence.Of(nextByte);
 
-            // Reinit table
-            codeTable.clear();
-            codeBits = minimumCodeSize + 1;
-            for (short index = 0; index < clearCode; ++index) {
-              codeTable.put(ByteSequence.Of((byte)index), index);
-            }
+      // Check for nextUnusedCode overflow
+      int nextCodeBits = BitUtils.GetBitLength(nextUnusedCode);
+      if (nextCodeBits != codeBits) {
+        if (nextCodeBits > MAXIMUM_CODE_SIZE) {
+          // If overflow - send clear code
+          out.PutShort(clearCode, codeBits);
 
-            nextUnusedCode = (short) (eoiCode + 1);
+          // Reinit table
+          codeTable.clear();
+          codeBits = minimumCodeSize + 1;
+          nextUnusedCode = (short) (eoiCode + 1);
 
-            continue;
+          for (short index = 0; index < clearCode; ++index) {
+            codeTable.put(ByteSequence.Of((byte)index), index);
           }
 
-          codeBits = nextCodeBits;
+          continue;
         }
 
-        nextUnusedCode += 1;
+        codeBits = nextCodeBits;
       }
+
+      nextUnusedCode += 1;
     }
 
     // Send code for index buffer and EOI code
@@ -151,7 +152,7 @@ public class GifLzwUtils {
       else {
         var prevSequence = table.get(prevCode);
         if (prevSequence == null) {
-          throw new GifLzwMalformedDataException("No sequence found for code " + currCode);
+          throw new GifLzwMalformedDataException("No sequence found for prev code " + prevCode);
         }
 
         var nextSequence = prevSequence.Append(prevSequence.At(0));
@@ -164,7 +165,7 @@ public class GifLzwUtils {
       // Swap codes
       prevCode = currCode;
 
-      // Check for nextUnusedCode overflow
+      // Check for added code overflow
       int nextCodeBits = BitUtils.GetBitLength(nextUnusedCode + 1);
       if (nextCodeBits != codeBits) {
         if (nextCodeBits > MAXIMUM_CODE_SIZE) {

@@ -1,6 +1,6 @@
 package com.yaetoti;
 import com.yaetoti.quantization.MedianCut;
-import com.yaetoti.utils.ByteSequence;
+import com.yaetoti.bytes.ByteSequence;
 import java.util.*;
 
 public class MainMedianCut {
@@ -21,7 +21,7 @@ public class MainMedianCut {
       System.out.println(color);
     }
 
-    var result = MedianCut.Cut(new ArrayList<>(set), 256);
+    var result = MedianCut.Reduce(set.toArray(new ByteSequence[0]), 3, 256);
     System.out.println("After quantization:");
     for (ByteSequence color : result) {
       System.out.println(color);

@@ -3,16 +3,12 @@ package com.yaetoti.gif.utils;
 import com.yaetoti.io.BitInputStreamBE;
 import com.yaetoti.io.BitOutputStreamBE;
 import com.yaetoti.utils.BitUtils;
-import com.yaetoti.utils.ByteSequence;
+import com.yaetoti.bytes.ByteSequence;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
 import java.util.HashMap;
 
 public class GifLzwUtils {
@@ -147,7 +143,7 @@ public class GifLzwUtils {
           throw new GifLzwMalformedDataException("No sequence found for code " + currCode);
         }
 
-        var nextSequence = prevSequence.Append(currSequence.At(0));
+        var nextSequence = prevSequence.Append(currSequence.Get(0));
         out.write(currSequence.ToByteArray());
 
         // Add new table entry
@@ -159,7 +155,7 @@ public class GifLzwUtils {
           throw new GifLzwMalformedDataException("No sequence found for prev code " + prevCode);
         }
 
-        var nextSequence = prevSequence.Append(prevSequence.At(0));
+        var nextSequence = prevSequence.Append(prevSequence.Get(0));
         out.write(nextSequence.ToByteArray());
 
         // Add new table entry

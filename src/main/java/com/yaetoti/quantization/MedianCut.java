@@ -1,119 +1,83 @@
 package com.yaetoti.quantization;
 
+import com.yaetoti.bytes.ByteSequenceUnsignedComponentComparator;
+import com.yaetoti.bytes.ByteSequenceUtils;
 import com.yaetoti.utils.ArrayUtils;
-import com.yaetoti.utils.ByteSequence;
+import com.yaetoti.bytes.ByteSequence;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 
 public final class MedianCut {
-  public static int[] GetRanges(Collection<ByteSequence> sequences, int indexCount) {
-    if (sequences.size() <= 1) {
-      int[] ranges = new int[sequences.size()];
-      Arrays.fill(ranges, 0);
-      return ranges;
-    }
-
-    int[] lowest = new int[indexCount];
-    int[] highest = new int[indexCount];
-    Arrays.fill(lowest, Integer.MAX_VALUE);
-    Arrays.fill(highest, Integer.MIN_VALUE);
-
-    for (ByteSequence s : sequences) {
-      for (int index = 0; index < indexCount; index++) {
-        int value = s.AtUnsigned(index);
-
-        if (value < lowest[index]) {
-          lowest[index] = value;
-        }
-
-        if (value > highest[index]) {
-          highest[index] = value;
-        }
-      }
-    }
-
-    int[] ranges = new int[indexCount];
-    for (int index = 0; index < indexCount; index++) {
-      ranges[index] = highest[index] - lowest[index];
-    }
-
-    return ranges;
-  }
-
-  public static int GetIndexWithHighestDifference(Collection<ByteSequence> sequences, int indexCount) {
-    int[] ranges = GetRanges(sequences, indexCount);
-    int index = 0;
-    int range = ranges[index];
-
-    for (int i = 1; i < indexCount; i++) {
-      int nextRange = ranges[i];
-      if (range < nextRange) {
-        range = nextRange;
-        index = i;
-      }
-    }
-
-    return index;
-  }
-
-  public static ArrayList<ByteSequence> Cut(@NotNull ArrayList<ByteSequence> colors, int targetCount) {
-    if (colors.size() <= targetCount) {
+  public static ByteSequence[] Reduce(@NotNull ByteSequence[] colors, int elementSize, int targetCount) {
+    if (colors.length <= targetCount) {
       return colors;
     }
 
     // Sort by sum of color ranges
-    PriorityQueue<List<ByteSequence>> buckets = new PriorityQueue<>((o1, o2) -> {
-      int diff1 = ArrayUtils.Sum(GetRanges(o1, 3));
-      int diff2 = ArrayUtils.Sum(GetRanges(o2, 3));
+    PriorityQueue<ByteSequence[]> buckets = new PriorityQueue<>((o1, o2) -> {
+      int diff1 = ArrayUtils.Sum(ByteSequenceUtils.GetRangesUnsigned(o1, elementSize));
+      int diff2 = ArrayUtils.Sum(ByteSequenceUtils.GetRangesUnsigned(o2, elementSize));
       if (diff1 == diff2) {
-        return -Integer.compare(o1.size(), o2.size());
+        // With the highest length on top
+        return -Integer.compare(o1.length, o2.length);
       }
 
+      // With the highest range on top
       return -Integer.compare(diff1, diff2);
     });
-    buckets.add(new ArrayList<>(colors));
+
+    buckets.add(Arrays.copyOf(colors, colors.length));
 
     // Prepare N buckets
     while (buckets.size() < targetCount) {
-      List<ByteSequence> largestBucket = buckets.poll();
+      ByteSequence[] largestBucket = buckets.poll();
       assert largestBucket != null;
 
-      var newBuckets = SplitBucket(largestBucket);
+      List<ByteSequence[]> newBuckets = SplitBucket(largestBucket);
       buckets.addAll(newBuckets);
     }
 
+    ByteSequence[] result = new ByteSequence[targetCount];
+
     // Calculate average for buckets
-    ArrayList<ByteSequence> result = new ArrayList<>();
-    for (var bucket : buckets) {
-      if (bucket.size() == 1) {
-        result.add(bucket.getFirst());
+    for (int i = 0; i < targetCount; i++) {
+      ByteSequence[] bucket = buckets.poll();
+      assert bucket != null;
+
+      if (bucket.length == 1) {
+        result[i] = bucket[0];
         continue;
       }
 
-      int[] components = new int[3];
+      int[] components = new int[elementSize];
       Arrays.fill(components, 0);
 
       for (ByteSequence color : bucket) {
-        for (int index = 0; index < 3; index++) {
-          components[index] += color.AtUnsigned(index);
+        for (int index = 0; index < elementSize; index++) {
+          components[index] += color.GetUnsigned(index);
         }
       }
 
-      for (int index = 0; index < 3; index++) {
-        components[index] /= bucket.size();
+      for (int index = 0; index < elementSize; index++) {
+        components[index] /= bucket.length;
       }
 
-      result.add(ByteSequence.Of(components));
+      result[i] = ByteSequence.Of(components);
     }
 
     return result;
   }
 
-  static List<List<ByteSequence>> SplitBucket(@NotNull List<ByteSequence> bucket) {
-    int index = GetIndexWithHighestDifference(bucket, 3);
-    bucket.sort(new ColorComponentComparator(index, true));
-    int middle = bucket.size() / 2;
-    return Arrays.asList(bucket.subList(0, middle), bucket.subList(middle, bucket.size()));
+  private static List<ByteSequence[]> SplitBucket(@NotNull ByteSequence[] bucket) {
+    assert bucket.length > 1;
+
+    int index = ByteSequenceUtils.GetIndexWithHighestRangeUnsigned(bucket, 3);
+    Arrays.sort(bucket, new ByteSequenceUnsignedComponentComparator(index, true));
+    int middle = bucket.length / 2;
+    return List.of(
+      Arrays.copyOfRange(bucket, 0, middle),
+      Arrays.copyOfRange(bucket, middle, bucket.length)
+    );
   }
 }

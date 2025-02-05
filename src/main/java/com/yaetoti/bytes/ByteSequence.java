@@ -1,4 +1,7 @@
-package com.yaetoti.utils;
+package com.yaetoti.bytes;
+
+import com.yaetoti.utils.StringUtils;
+import org.jetbrains.annotations.Range;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -24,6 +27,14 @@ public final class ByteSequence {
     return new ByteSequence(bytes);
   }
 
+  public static ByteSequence Of(byte[] buffer, int offset, int length) {
+    assert buffer.length >= offset + length;
+
+    byte[] bytes = new byte[length];
+    System.arraycopy(buffer, offset, bytes, 0, length);
+    return new ByteSequence(bytes);
+  }
+
   public static ByteSequence Of(int... buffer) {
     byte[] bytes = new byte[buffer.length];
     for (int i = 0; i < buffer.length; i++) {
@@ -33,11 +44,35 @@ public final class ByteSequence {
     return new ByteSequence(bytes);
   }
 
-  public byte At(int index) {
+  public static ByteSequence[] ArrayOf(byte[] bytes, int elementSize) {
+    assert bytes.length % elementSize == 0;
+
+    int size = bytes.length / elementSize;
+    ByteSequence[] byteSequences = new ByteSequence[size];
+
+    for (int i = 0; i < size; i++) {
+      byteSequences[i] = ByteSequence.Of(bytes, i * elementSize, elementSize);
+    }
+
+    return byteSequences;
+  }
+
+  public static byte[] ToByteArray(ByteSequence[] sequences, @Range(from = 0, to = Integer.MAX_VALUE) int elementSize) {
+    byte[] bytes = new byte[sequences.length * elementSize];
+    for (int i = 0; i < sequences.length; i++) {
+      assert sequences[i] != null;
+      assert sequences[i].Length() == elementSize;
+      System.arraycopy(sequences[i].m_buffer, 0, bytes, i * elementSize, elementSize);
+    }
+
+    return bytes;
+  }
+
+  public byte Get(int index) {
     return m_buffer[index];
   }
 
-  public int AtUnsigned(int index) {
+  public int GetUnsigned(int index) {
     return m_buffer[index] & 0xFF;
   }
 

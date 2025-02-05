@@ -1,5 +1,6 @@
 package com.yaetoti;
 
+import com.yaetoti.bytes.ByteSequenceUtils;
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.io.GifOutput;
 import com.yaetoti.gif.io.GifReader;
@@ -8,64 +9,22 @@ import com.yaetoti.io.DataInputLE;
 import com.yaetoti.io.DataOutputLE;
 import com.yaetoti.quantization.MedianCut;
 import com.yaetoti.utils.BitUtils;
-import com.yaetoti.utils.ByteSequence;
+import com.yaetoti.bytes.ByteSequence;
 
 import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 public class MainQuantizationTest {
-  public static double ColorDistanceSquare(ByteSequence c1, ByteSequence c2) {
-    int[] differences = new int[c1.Length()];
-    for (int i = 0; i < c1.Length(); i++) {
-      differences[i] = c1.AtUnsigned(i) - c2.AtUnsigned(i);
-    }
-
-    int result = 0;
-    for (int difference : differences) {
-      result += difference * difference;
-    }
-
-    return result;
-  }
-
-  public static int FindClosestColor(ByteSequence target, ArrayList<ByteSequence> palette) {
-    int bestIndex = 0;
-    double bestDistance = Double.MAX_VALUE;
-
-    for (int i = 0; i < palette.size(); i++) {
-      ByteSequence color = palette.get(i);
-      double distance = ColorDistanceSquare(target, color);
-      if (distance < bestDistance) {
-        bestDistance = distance;
-        bestIndex = i;
-      }
-    }
-
-    // TODO
-    return bestIndex;
-  }
-
-  public static Map<Integer, Integer> CreateColorMap(ArrayList<ByteSequence> oldPalette, ArrayList<ByteSequence> newPalette) {
-    HashMap<Integer, Integer> colorMap = new HashMap<>();
-    for (int i = 0; i < oldPalette.size(); i++) {
-      ByteSequence color = oldPalette.get(i);
-      int newIndex = FindClosestColor(color, newPalette);
-      colorMap.put(i, newIndex);
-    }
-
-    return colorMap;
-  }
-
   public static void main(String[] args) throws IOException {
-    //var file = new RandomAccessFile("image1.gif", "r");
+    var file = new RandomAccessFile("image1.gif", "r");
     //var file = new RandomAccessFile("image.gif", "r");
     //var file = new RandomAccessFile("image2.gif", "r");
-    var file = new RandomAccessFile("ebalo2.gif", "r");
+    //var file = new RandomAccessFile("ebalo.gif", "r");
+    //var file = new RandomAccessFile("ebalo2.gif", "r");
     var input = new DataInputLE(file);
 
     ArrayList<GifElement> elements = new ArrayList<>();
@@ -96,6 +55,8 @@ public class MainQuantizationTest {
 
     // Writing
 
+
+    // Extracting header and LSD
     GifHeader header = elements.get(0).As();
     GifLogicalScreenDescriptor lsd = elements.get(1).As();
     if (!lsd.isGlobalColorTablePresent) {
@@ -104,97 +65,91 @@ public class MainQuantizationTest {
       return;
     }
 
-    int tableSize = lsd.globalColorTableSize;
-    int outputSize = BitUtils.GetBitLength(tableSize) - 1;
-
+    // Extracting global color palette
     GifColorTable colorTable = elements.get(2).As();
-    ArrayList<ByteSequence> palette = new ArrayList<>();
-    for (int index = 0; index < lsd.globalColorTableSize; index++) {
-      var component1 = colorTable.table[index * 3];
-      var component2 = colorTable.table[index * 3 + 1];
-      var component3 = colorTable.table[index * 3 + 2];
-      palette.add(ByteSequence.Of(component1, component2, component3));
-    }
+    ByteSequence[] globalPalette = ByteSequence.ArrayOf(colorTable.table, 3);
 
-    for (int i = 0; i < outputSize; ++i) {
-      ArrayList<ByteSequence> newPalette = MedianCut.Cut(palette, tableSize);
-      Map<Integer, Integer> colorMap = CreateColorMap(palette, newPalette);
+    // Calculating reduction count
+    int tableSize = lsd.globalColorTableSize;
+    int reductionCount = BitUtils.GetBitLength(tableSize) - 1;
 
-      // Recode
-      FileOutputStream fos = new FileOutputStream("quantization/recoded" + tableSize + ".gif");
+    // Perform reduction passes
+    int usedTableSize = tableSize;
+
+    for (int i = 0; i < reductionCount; ++i) {
+      // Reduce palette
+      ByteSequence[] reducedPalette = MedianCut.Reduce(globalPalette, 3, usedTableSize);
+      Map<Integer, Integer> colorMap = ByteSequenceUtils.MapClosestIndices(globalPalette, reducedPalette);
+
+      // Open files
+      FileOutputStream fos = new FileOutputStream("quantization/recoded" + usedTableSize + ".gif");
       GifOutput output = new GifOutput(new DataOutputLE(new DataOutputStream(fos)));
 
-      // New table
-      GifColorTable newTable = new GifColorTable();
-      {
-        byte[] bytes = new byte[tableSize * 3];
-        for (int j = 0; j < tableSize; j++) {
-          var color = newPalette.get(j);
-          var oldcolor = palette.get(j);
-          bytes[j * 3] = color.At(0);
-          bytes[j * 3 + 1] = color.At(1);
-          bytes[j * 3 + 2] = color.At(2);
-        }
+      // Create table element
+      GifColorTable reducedTableElement = new GifColorTable();
+      reducedTableElement.type = GifColorTable.Type.GLOBAL;
+      reducedTableElement.table = ByteSequence.ToByteArray(reducedPalette, 3);
 
-        newTable.type = GifColorTable.Type.GLOBAL;
-        newTable.table = bytes;
-      }
-
-      // TODO differs 0x00001850, 6226 byte d0dc ... and so on fix asap
-
+      // Recode elements
       for (GifElement element : elements) {
         var type = element.GetElementType();
 
+        // Change table size
         if (type == GifElementType.LOGICAL_SCREEN_DESCRIPTOR) {
           GifLogicalScreenDescriptor descriptor = element.As();
-          descriptor.globalColorTableSize = tableSize;
+          descriptor.globalColorTableSize = usedTableSize;
           output.WriteElement(descriptor);
           continue;
         }
 
+        // Write reduced table
         if (type == GifElementType.COLOR_TABLE) {
-          output.WriteElement(newTable);
+          output.WriteElement(reducedTableElement);
           continue;
         }
 
+        // Recode image indices
         if (type == GifElementType.TABLE_BASED_IMAGE_DATA) {
           GifTableBasedImageData imageData = element.As();
-          var encoded = imageData.imageData;
+          byte[] encoded = imageData.imageData;
 
+          // No data
           if (imageData.imageData == null) {
-            output.WriteElement(newTable);
+            output.WriteElement(imageData);
             continue;
           }
 
           // Remapping indices
-          byte[] indices = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, encoded);
-          for (int j = 0; j < indices.length; j++) {
-            int currIndex = indices[j] & 0xFF;
+          byte[] decoded = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, encoded);
+          for (int j = 0; j < decoded.length; j++) {
+            int currIndex = decoded[j] & 0xFF;
             int newIndex = colorMap.get(currIndex);
-            indices[j] = (byte)newIndex;
+            decoded[j] = (byte)newIndex;
           }
 
           // Encoding data
-          encoded = GifLzwUtils.encode(8, indices);
+          // TODO wrong encoded data
+          encoded = GifLzwUtils.encode(8, decoded);
 
           // Writing
           GifTableBasedImageData newImageData = new GifTableBasedImageData();
-          newImageData.lzwMinimumCodeSize = imageData.lzwMinimumCodeSize;
+          newImageData.lzwMinimumCodeSize = 8;
           newImageData.imageData = encoded;
-
           output.WriteElement(newImageData);
           continue;
         }
 
+        // Write other elements
         output.WriteElement(element);
 
+        // Exit on trailer
         if (type == GifElementType.TRAILER) {
           break;
         }
       }
 
       // Go to next file
-      tableSize >>= 1;
+      usedTableSize >>= 1;
       System.out.println("Saved");
     }
 

@@ -128,7 +128,6 @@ public class MainQuantizationTest {
           }
 
           // Encoding data
-          // TODO wrong encoded data
           encoded = GifLzwUtils.encode(8, decoded);
 
           // Writing

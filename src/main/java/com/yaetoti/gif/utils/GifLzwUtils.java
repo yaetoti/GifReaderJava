@@ -172,7 +172,6 @@ public class GifLzwUtils {
           // Don't touch table with your dirty hands when overflow (c) GIF Specification
           // That's an error recovery mechanism. Just waiting for the clear code and using known sequences
           // TODO assert size
-          // TODO poo poo poo
           //throw new GifLzwMalformedDataException("Code " + nextCodeBits + " too long");
           continue;
         }

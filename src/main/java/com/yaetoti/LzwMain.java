@@ -41,21 +41,27 @@ public class LzwMain {
 
 
     // Long sequence
-    byte[] array0 = new byte[16384];
-    Arrays.fill(array0, (byte)254);
+    //for (int i = 0; i <= 255; ++i) {
+      byte[] array0 = new byte[16384];
+      for (int i = 0; i < array0.length; ++i) {
+        array0[i] = (byte) i;
+      }
+      //Arrays.fill(array0, (byte)i);
 
-    System.out.println("Original array:");
-    IoUtils.WriteByteArrayHex(System.out, array0);
+      //System.out.println("Original array:");
+      //IoUtils.WriteByteArrayHex(System.out, array0);
 
-    byte[] array1 = GifLzwUtils.encode(8, array0);
-    System.out.println("Encoded array:");
-    IoUtils.WriteByteArrayHex(System.out, array1);
+      byte[] array1 = GifLzwUtils.encode(8, array0);
+      //System.out.println("Encoded array:");
+      //IoUtils.WriteByteArrayHex(System.out, array1);
 
-    byte[] array2 = GifLzwUtils.decode(8, array1);
-    System.out.println("Decoded array:");
-    IoUtils.WriteByteArrayHex(System.out, array2);
+      byte[] array2 = GifLzwUtils.decode(8, array1);
+      //System.out.println("Decoded array:");
+      //IoUtils.WriteByteArrayHex(System.out, array2);
 
-    assert Arrays.equals(array0, array2);
+      assert Arrays.equals(array0, array2);
+    //}
+
 
 
 //    BitInputStream in = new BitInputStream(new byte[] {

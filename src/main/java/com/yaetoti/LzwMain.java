@@ -43,8 +43,13 @@ public class LzwMain {
     // Long sequence
     //for (int i = 0; i <= 255; ++i) {
       byte[] array0 = new byte[16384];
+      int value = 0;
       for (int i = 0; i < array0.length; ++i) {
-        array0[i] = (byte) i;
+        array0[i] = (byte) value;
+
+        if (++value >= 10) {
+          value = 0;
+        }
       }
       //Arrays.fill(array0, (byte)i);
 

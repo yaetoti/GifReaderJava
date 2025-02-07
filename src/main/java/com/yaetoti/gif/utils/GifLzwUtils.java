@@ -162,24 +162,16 @@ public class GifLzwUtils {
         table.put(nextUnusedCode, nextSequence);
       }
 
-      // Swap codes
-      prevCode = currCode;
-
       // Check for added code overflow
-      int nextCodeBits = BitUtils.GetBitLength(nextUnusedCode + 1);
-      if (nextCodeBits != codeBits) {
-        if (nextCodeBits > MAXIMUM_CODE_SIZE) {
-          // Don't touch table with your dirty hands when overflow (c) GIF Specification
-          // That's an error recovery mechanism. Just waiting for the clear code and using known sequences
-          // TODO assert size
-          //throw new GifLzwMalformedDataException("Code " + nextCodeBits + " too long");
-          continue;
+      if (nextUnusedCode < (1 << MAXIMUM_CODE_SIZE)) {
+        ++nextUnusedCode;
+        if (nextUnusedCode == (1 << codeBits) && nextUnusedCode < (1 << MAXIMUM_CODE_SIZE)) {
+          ++codeBits;
         }
-
-        codeBits = nextCodeBits;
       }
 
-      nextUnusedCode += 1;
+      // Swap codes
+      prevCode = currCode;
     }
 
     return out.toByteArray();

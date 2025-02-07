@@ -20,8 +20,8 @@ import java.util.Map;
 
 public class MainQuantizationTest {
   public static void main(String[] args) throws IOException {
-    var file = new RandomAccessFile("image1.gif", "r");
-    //var file = new RandomAccessFile("image.gif", "r");
+    //var file = new RandomAccessFile("image1.gif", "r");
+    var file = new RandomAccessFile("image.gif", "r");
     //var file = new RandomAccessFile("image2.gif", "r");
     //var file = new RandomAccessFile("ebalo.gif", "r");
     //var file = new RandomAccessFile("ebalo2.gif", "r");

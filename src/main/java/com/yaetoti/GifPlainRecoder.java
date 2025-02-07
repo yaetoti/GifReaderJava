@@ -8,6 +8,7 @@ import com.yaetoti.io.DataInputLE;
 import com.yaetoti.io.DataOutputLE;
 import com.yaetoti.bytes.ByteSequence;
 import com.yaetoti.quantization.MedianCut;
+import com.yaetoti.utils.BitUtils;
 
 import java.io.*;
 import java.util.*;
@@ -96,6 +97,7 @@ public class GifPlainRecoder {
 
     // Reducing colors if necessary
     int targetColorCount = Math.min(usesTransparencyFlag ? 255 : 256, uniqueColors.size());
+    //int targetColorCount = Math.min(usesTransparencyFlag ? 15 : 16, uniqueColors.size());
     int transparentColorIndex = usesTransparencyFlag ? targetColorCount : 0;
 
     ByteSequence[] newGlobalTable = uniqueColors.toArray(new ByteSequence[0]);
@@ -103,12 +105,20 @@ public class GifPlainRecoder {
       newGlobalTable = MedianCut.Reduce(newGlobalTable, 3, targetColorCount);
     }
 
-    // Adding a transparency color
-    ByteSequence[] finalColors = newGlobalTable;
+    // Adjusting table size
+    int finalSize = targetColorCount + (usesTransparencyFlag ? 1 : 0);
+    int tableSize = (1 << BitUtils.GetBitLength(finalSize - 1));
+    ByteSequence[] finalColors = new ByteSequence[tableSize];
+    System.arraycopy(newGlobalTable, 0, finalColors, 0, newGlobalTable.length);
+
+    // Adding a transparent color
     if (usesTransparencyFlag) {
-      finalColors = new ByteSequence[targetColorCount + 1];
-      System.arraycopy(newGlobalTable, 0, finalColors, 0, targetColorCount);
-      finalColors[targetColorCount] = ByteSequence.Of(0, 0, 0);
+      finalColors[transparentColorIndex] = ByteSequence.Of(0, 0, 0);
+    }
+
+    // Zero-fill
+    for (int i = finalSize; i < finalColors.length; i++) {
+      finalColors[i] = ByteSequence.Of(0, 0, 0);
     }
 
     // Mapping global table and background color
@@ -135,7 +145,7 @@ public class GifPlainRecoder {
       if (type == GifElementType.LOGICAL_SCREEN_DESCRIPTOR) {
         GifLogicalScreenDescriptor descriptorElement = element.As();
         descriptorElement.backgroundColorIndex = backgroundColorIndex;
-        descriptorElement.globalColorTableSize = finalColors.length;
+        descriptorElement.globalColorTableSize = tableSize;
         descriptorElement.isGlobalColorTablePresent = true;
         out.WriteElement(element);
         continue;
@@ -170,7 +180,7 @@ public class GifPlainRecoder {
           graphicsControlExtension.transparentColorIndex = transparentColorIndex;
           // TODO plain
           //graphicsControlExtension.disposalMethod = ;
-          out.WriteGraphicControlExtension(graphicsControlExtension);
+          //out.WriteGraphicControlExtension(graphicsControlExtension);
         }
 
         assert imageDescriptor != null;
@@ -185,28 +195,28 @@ public class GifPlainRecoder {
         }
 
         // Recoding image
-        byte[] decoded = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
+        assert colorMap != null;
+        byte[] decoded = GifLzwUtils.Decode(imageData.lzwMinimumCodeSize, imageData.imageData);
         for (int i = 0; i < decoded.length; i++) {
-          assert colorMap != null;
           int index = decoded[i] & 0xFF;
           if (graphicsControlExtension != null && graphicsControlExtension.transparentColorFlag && index == prevTransparentColorIndex) {
             decoded[i] = (byte)transparentColorIndex;
             continue;
           }
 
-          decoded[i] = colorMap.get(decoded[i] & 0xFF).byteValue();
+          decoded[i] = colorMap.get(index).byteValue();
         }
 
-        byte[] encoded = GifLzwUtils.encode(8, decoded);
+        byte[] encoded = GifLzwUtils.Encode(8, decoded);
         imageData.lzwMinimumCodeSize = 8;
         imageData.imageData = encoded;
 
         if (graphicsControlExtension != null) {
-          out.WriteGraphicControlExtension(graphicsControlExtension);
+          out.WriteElement(graphicsControlExtension);
         }
 
-        out.WriteImageDescriptor(imageDescriptor);
-        out.WriteTableBasedImageData(imageData);
+        out.WriteElement(imageDescriptor);
+        out.WriteElement(imageData);
 
         // Free data
         graphicsControlExtension = null;

@@ -75,7 +75,7 @@ public final class GifOutput {
     m_output.writeShort(element.logicalScreenHeight);
     int packed = 0;
     // -1 for file format and -1 for BitLength (need to shift 1 less time)
-    int power = BitUtils.GetBitLength(element.globalColorTableSize) - 2;
+    int power = BitUtils.GetBitLength(element.globalColorTableSize - 1) - 1;
     packed |= power & 0x7;
     packed |= element.isGlobalColorTableSorted ? (1 << 3) : 0;
     packed |= ((element.colorResolution - 1) & 0x7) << 4;

@@ -1,7 +1,6 @@
 package com.yaetoti;
 
 import com.yaetoti.gif.utils.GifLzwUtils;
-import com.yaetoti.utils.IoUtils;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -56,11 +55,11 @@ public class LzwMain {
       //System.out.println("Original array:");
       //IoUtils.WriteByteArrayHex(System.out, array0);
 
-      byte[] array1 = GifLzwUtils.encode(8, array0);
+      byte[] array1 = GifLzwUtils.Encode(8, array0);
       //System.out.println("Encoded array:");
       //IoUtils.WriteByteArrayHex(System.out, array1);
 
-      byte[] array2 = GifLzwUtils.decode(8, array1);
+      byte[] array2 = GifLzwUtils.Decode(8, array1);
       //System.out.println("Decoded array:");
       //IoUtils.WriteByteArrayHex(System.out, array2);
 

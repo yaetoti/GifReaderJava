@@ -12,9 +12,13 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class GifLzwUtils {
+  private GifLzwUtils() {
+    throw new IllegalStateException("Utility class");
+  }
+
   public static final int MAXIMUM_CODE_SIZE = 12;
 
-  public static byte[] encode(@Range(from = 1, to = MAXIMUM_CODE_SIZE - 1) int minimumCodeSize, byte @NotNull [] data) throws GifLzwCodeOutOfBoundsException {
+  public static byte[] Encode(@Range(from = 1, to = MAXIMUM_CODE_SIZE - 1) int minimumCodeSize, byte @NotNull [] data) throws GifLzwCodeOutOfBoundsException {
     final short clearCode = (short) (1 << minimumCodeSize);
     final short eoiCode = (short) (clearCode + 1);
     short nextUnusedCode = (short) (eoiCode + 1);
@@ -86,7 +90,7 @@ public class GifLzwUtils {
     return out.ToByteArray();
   }
 
-  public static byte[] decode(@Range(from = 1, to = MAXIMUM_CODE_SIZE - 1) int minimumCodeSize, byte @NotNull [] data) throws IOException, GifLzwCodeOutOfBoundsException, GifLzwMalformedDataException {
+  public static byte[] Decode(@Range(from = 1, to = MAXIMUM_CODE_SIZE - 1) int minimumCodeSize, byte @NotNull [] data) throws IOException, GifLzwCodeOutOfBoundsException, GifLzwMalformedDataException {
     final short clearCode = (short) (1 << minimumCodeSize);
     final short eoiCode = (short) (clearCode + 1);
     short nextUnusedCode = (short) (eoiCode + 1);

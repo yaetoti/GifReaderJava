@@ -1,7 +1,5 @@
 package com.yaetoti;
 
-import com.yaetoti.bytes.ByteSequence;
-import com.yaetoti.gif.blocks.GifColorTable;
 import com.yaetoti.gif.blocks.GifElementType;
 import com.yaetoti.gif.blocks.GifImageDescriptor;
 import com.yaetoti.gif.blocks.GifTableBasedImageData;
@@ -10,7 +8,6 @@ import com.yaetoti.gif.io.GifReader;
 import com.yaetoti.gif.utils.GifLzwUtils;
 import com.yaetoti.io.DataInputLE;
 import com.yaetoti.io.DataOutputLE;
-import com.yaetoti.ppm.PpmImage;
 
 import java.io.*;
 
@@ -46,9 +43,9 @@ public class MainRecoder {
           continue;
         }
 
-        byte[] decoded = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
+        byte[] decoded = GifLzwUtils.Decode(imageData.lzwMinimumCodeSize, imageData.imageData);
         assert decoded.length == targetSize;
-        byte[] encoded = GifLzwUtils.encode(imageData.lzwMinimumCodeSize, decoded);
+        byte[] encoded = GifLzwUtils.Encode(imageData.lzwMinimumCodeSize, decoded);
         //assert encoded.length == imageData.imageData.length;
         imageData.imageData = encoded;
 

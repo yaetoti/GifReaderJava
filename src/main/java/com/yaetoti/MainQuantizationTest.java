@@ -21,8 +21,8 @@ import java.util.Map;
 public class MainQuantizationTest {
   public static void main(String[] args) throws IOException {
     //var file = new RandomAccessFile("image1.gif", "r");
-    var file = new RandomAccessFile("image.gif", "r");
-    //var file = new RandomAccessFile("image2.gif", "r");
+    //var file = new RandomAccessFile("image.gif", "r");
+    var file = new RandomAccessFile("image2.gif", "r");
     //var file = new RandomAccessFile("ebalo.gif", "r");
     //var file = new RandomAccessFile("ebalo2.gif", "r");
     var input = new DataInputLE(file);
@@ -120,7 +120,7 @@ public class MainQuantizationTest {
           }
 
           // Remapping indices
-          byte[] decoded = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, encoded);
+          byte[] decoded = GifLzwUtils.Decode(imageData.lzwMinimumCodeSize, encoded);
           for (int j = 0; j < decoded.length; j++) {
             int currIndex = decoded[j] & 0xFF;
             int newIndex = colorMap.get(currIndex);
@@ -128,7 +128,7 @@ public class MainQuantizationTest {
           }
 
           // Encoding data
-          encoded = GifLzwUtils.encode(8, decoded);
+          encoded = GifLzwUtils.Encode(8, decoded);
 
           // Writing
           GifTableBasedImageData newImageData = new GifTableBasedImageData();

@@ -78,7 +78,7 @@ public class GifMain {
           }
 
           // Decode indices
-          byte[] indices = GifLzwUtils.decode(imageData.lzwMinimumCodeSize, imageData.imageData);
+          byte[] indices = GifLzwUtils.Decode(imageData.lzwMinimumCodeSize, imageData.imageData);
 
           // Add corresponding colors to a buffer
           ByteArrayOutputStream out = new ByteArrayOutputStream();

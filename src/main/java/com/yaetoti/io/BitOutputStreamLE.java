@@ -62,7 +62,7 @@ public final class BitOutputStreamLE {
       int howMuchShiftRight = bits - howMuchFit;
       int howMuchShiftLeft = remainingBits - howMuchFit;
 
-      byte takenValue = (byte)(value >> howMuchShiftRight);
+      byte takenValue = (byte)((value & 0xFF) >>> howMuchShiftRight);
       value = BitUtils.MaskBits(value, howMuchLeft);
       bits -= howMuchFit;
 

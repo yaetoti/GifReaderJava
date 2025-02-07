@@ -10,7 +10,7 @@ public class GifLzwUtilsTest {
   @Test
   public void TestEncode() {
     byte[] data = new byte[] {
-      1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1
+      1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1
     };
 
     byte[] encoded = GifLzwUtils.Encode(2, data);
@@ -19,8 +19,7 @@ public class GifLzwUtilsTest {
       (byte) 0b10001100,
       (byte) 0b00101101,
       (byte) 0b10011001,
-      (byte) 0b10000111,
-      (byte) 0b00101010
+      (byte) 0b01010111,
     };
 
     Assertions.assertArrayEquals(expected, encoded);

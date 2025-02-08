@@ -27,7 +27,7 @@ public class ByteSequenceUtils {
       assert s.Length() == elementSize;
 
       for (int index = 0; index < elementSize; index++) {
-        int value = s.GetUnsigned(index);
+        int value = s.GetUnsignedByte(index);
 
         if (value < lowest[index]) {
           lowest[index] = value;
@@ -68,7 +68,7 @@ public class ByteSequenceUtils {
 
     int result = 0;
     for (int i = 0; i < c1.Length(); i++) {
-      int difference = c1.GetUnsigned(i) - c2.GetUnsigned(i);
+      int difference = c1.GetUnsignedByte(i) - c2.GetUnsignedByte(i);
       result += difference * difference;
     }
 

@@ -46,12 +46,25 @@ public class GifLzwUtilsTest {
 
   @Test
   public void TestInteroperability() throws IOException {
-    byte[] data = new byte[] {
-      1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1
-    };
+    {
+      byte[] data = new byte[] {
+        1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 1, 1, 1
+      };
 
-    byte[] encoded = GifLzwUtils.Encode(2, data);
-    byte[] decoded = GifLzwUtils.Decode(2, encoded);
-    Assertions.assertArrayEquals(data, decoded);
+      byte[] encoded = GifLzwUtils.Encode(2, data);
+      byte[] decoded = GifLzwUtils.Decode(2, encoded);
+      Assertions.assertArrayEquals(data, decoded);
+    }
+
+    {
+      byte[] data = new byte[4096];
+      for (int i = 0; i < data.length; i++) {
+        data[i] = (byte) i;
+      }
+
+      byte[] encoded = GifLzwUtils.Encode(8, data);
+      byte[] decoded = GifLzwUtils.Decode(8, encoded);
+      Assertions.assertArrayEquals(data, decoded);
+    }
   }
 }

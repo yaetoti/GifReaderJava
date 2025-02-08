@@ -2,6 +2,7 @@ package com.yaetoti.gif.io;
 
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.utils.GifBlockLabel;
+import com.yaetoti.gif.utils.GifColorTableType;
 import com.yaetoti.gif.utils.GifExtensionLabel;
 import com.yaetoti.io.DataInputLE;
 import org.jetbrains.annotations.NotNull;
@@ -73,7 +74,7 @@ public final class GifReader {
 
   @NotNull
   private GifElement HandleNextGlobalColorTable() throws IOException {
-    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize, GifColorTable.Type.GLOBAL);
+    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize, GifColorTableType.GLOBAL);
     m_state = State.NEXT_BLOCK;
     return element;
   }
@@ -153,7 +154,7 @@ public final class GifReader {
 
   @NotNull
   private GifElement HandleNextLocalColorTable() throws IOException {
-    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize, GifColorTable.Type.LOCAL);
+    GifColorTable element = m_input.ReadColorTable(m_nextColorTableSize, GifColorTableType.LOCAL);
     m_state = State.NEXT_TABLE_BASED_IMAGE_DATA;
     return element;
   }

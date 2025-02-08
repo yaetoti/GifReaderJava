@@ -13,8 +13,8 @@ public class ByteSequenceUnsignedComponentComparator implements Comparator<ByteS
 
   @Override
   public int compare(ByteSequence lhs, ByteSequence rhs) {
-    int lhsColor = lhs.GetUnsigned(m_index);
-    int rhsColor = rhs.GetUnsigned(m_index);
+    int lhsColor = lhs.GetUnsignedByte(m_index);
+    int rhsColor = rhs.GetUnsignedByte(m_index);
     return (m_reverse ? -1 : 1) * Integer.compare(lhsColor, rhsColor);
   }
 }

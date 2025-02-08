@@ -8,11 +8,13 @@ import com.yaetoti.ppm.PpmImage;
 import com.yaetoti.utils.ScopedTimer;
 
 import java.io.*;
+import java.nio.ByteBuffer;
 
 public class GifMain {
   public static void main(String[] args) throws IOException {
     //RandomAccessFile file = new RandomAccessFile("image.gif", "r");
     //RandomAccessFile file = new RandomAccessFile("image1.gif", "r");
+
     RandomAccessFile file = new RandomAccessFile("E:\\PremiereExport\\Miraculous-london-Full-HD.gif", "r");
     GifReader reader = new GifReader(new DataInputLE(file));
 

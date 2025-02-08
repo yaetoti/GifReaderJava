@@ -13,7 +13,7 @@ import java.util.HashMap;
 
 public class GifLzwUtils {
   private GifLzwUtils() {
-    throw new IllegalStateException("Utility class");
+    assert false : "Utility class.";
   }
 
   public static final int MAXIMUM_CODE_SIZE = 12;
@@ -147,7 +147,7 @@ public class GifLzwUtils {
           throw new GifLzwMalformedDataException("No sequence found for code " + currCode);
         }
 
-        var nextSequence = prevSequence.Append(currSequence.Get(0));
+        var nextSequence = prevSequence.Append(currSequence.GetByte(0));
         out.write(currSequence.ToByteArray());
 
         // Add new table entry
@@ -159,7 +159,7 @@ public class GifLzwUtils {
           throw new GifLzwMalformedDataException("No sequence found for prev code " + prevCode);
         }
 
-        var nextSequence = prevSequence.Append(prevSequence.Get(0));
+        var nextSequence = prevSequence.Append(prevSequence.GetByte(0));
         out.write(nextSequence.ToByteArray());
 
         // Add new table entry

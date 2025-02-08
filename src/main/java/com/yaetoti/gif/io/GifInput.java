@@ -1,10 +1,7 @@
 package com.yaetoti.gif.io;
 
 import com.yaetoti.gif.blocks.*;
-import com.yaetoti.gif.utils.DisposalMethod;
-import com.yaetoti.gif.utils.GifBlockLabel;
-import com.yaetoti.gif.utils.GifExtensionLabel;
-import com.yaetoti.gif.utils.GifVersion;
+import com.yaetoti.gif.utils.*;
 import com.yaetoti.io.DataInputLE;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -49,7 +46,7 @@ public final class GifInput {
     descriptor.logicalScreenHeight = m_input.readUnsignedShort();
 
     int packed = m_input.readUnsignedByte();
-    descriptor.globalColorTableSize = 1 << ((packed & 0b00000111) + 1);
+    descriptor.globalColorTableSize = GifUtils.DecodeTableSize(packed & 0b00000111);
     descriptor.isGlobalColorTableSorted = (packed & 0b00001000) != 0;
     descriptor.colorResolution = ((packed & 0b01110000) >> 4) + 1;
     descriptor.isGlobalColorTablePresent = (packed & 0b10000000) != 0;
@@ -61,7 +58,7 @@ public final class GifInput {
   }
 
   @NotNull
-  public GifColorTable ReadColorTable(int size, GifColorTable.Type type) throws IOException {
+  public GifColorTable ReadColorTable(int size, GifColorTableType type) throws IOException {
     byte[] colorTable = new byte[3 * size];
     m_input.readFully(colorTable);
 
@@ -84,7 +81,7 @@ public final class GifInput {
     GifGraphicsControlExtension extension = new GifGraphicsControlExtension();
     extension.transparentColorFlag = (packed & 0b00000001) != 0;
     extension.userInputFlag = (packed & 0b00000010) != 0;
-    extension.disposalMethod = DisposalMethod.FromId((packed & 0b00011100) >> 2);
+    extension.disposalMethod = GifDisposalMethod.FromId((packed & 0b00011100) >> 2);
     extension.delayTime = m_input.readUnsignedShort();
     extension.transparentColorIndex = m_input.readUnsignedByte();
 

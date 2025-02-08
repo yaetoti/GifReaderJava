@@ -55,7 +55,7 @@ public final class MedianCut {
 
       for (ByteSequence color : bucket) {
         for (int index = 0; index < elementSize; index++) {
-          components[index] += color.GetUnsigned(index);
+          components[index] += color.GetUnsignedByte(index);
         }
       }
 

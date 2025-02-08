@@ -4,6 +4,7 @@ import com.yaetoti.bytes.ByteSequenceUtils;
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.io.GifOutput;
 import com.yaetoti.gif.io.GifReader;
+import com.yaetoti.gif.utils.GifColorTableType;
 import com.yaetoti.gif.utils.GifLzwUtils;
 import com.yaetoti.io.DataInputLE;
 import com.yaetoti.io.DataOutputLE;
@@ -41,7 +42,7 @@ public class MainQuantizationTest {
 
       if (type == GifElementType.COLOR_TABLE) {
         GifColorTable table = element.As();
-        if (table.type == GifColorTable.Type.LOCAL) {
+        if (table.type == GifColorTableType.LOCAL) {
           System.out.println("Local color table found. Unsupported.");
           file.close();
           return;
@@ -87,7 +88,7 @@ public class MainQuantizationTest {
 
       // Create table element
       GifColorTable reducedTableElement = new GifColorTable();
-      reducedTableElement.type = GifColorTable.Type.GLOBAL;
+      reducedTableElement.type = GifColorTableType.GLOBAL;
       reducedTableElement.table = ByteSequence.ToByteArray(reducedPalette, 3);
 
       // Recode elements

@@ -5,7 +5,6 @@ import com.yaetoti.gif.blocks.GifElementType;
 import com.yaetoti.gif.io.GifReader;
 import com.yaetoti.io.DataInputLE;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;

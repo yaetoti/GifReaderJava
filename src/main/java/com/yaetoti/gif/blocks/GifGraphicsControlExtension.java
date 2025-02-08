@@ -1,11 +1,11 @@
 package com.yaetoti.gif.blocks;
 
-import com.yaetoti.gif.utils.DisposalMethod;
+import com.yaetoti.gif.utils.GifDisposalMethod;
 
 public final class GifGraphicsControlExtension extends GifElement {
   public boolean transparentColorFlag;
   public boolean userInputFlag;
-  public DisposalMethod disposalMethod;
+  public GifDisposalMethod disposalMethod;
   /// 1/100 of a second
   public int delayTime;
   public int transparentColorIndex;

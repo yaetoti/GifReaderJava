@@ -3,6 +3,7 @@ package com.yaetoti;
 import com.yaetoti.bytes.ByteSequenceUtils;
 import com.yaetoti.gif.blocks.*;
 import com.yaetoti.gif.io.*;
+import com.yaetoti.gif.utils.GifColorTableType;
 import com.yaetoti.gif.utils.GifLzwUtils;
 import com.yaetoti.io.DataInputLE;
 import com.yaetoti.io.DataOutputLE;
@@ -229,7 +230,7 @@ public class GifPlainRecoder {
 
       if (type == GifElementType.COLOR_TABLE) {
         GifColorTable colorTableElement = element.As();
-        if (colorTableElement.type == GifColorTable.Type.LOCAL) {
+        if (colorTableElement.type == GifColorTableType.LOCAL) {
           localColorTable = element.As();
           continue;
         }

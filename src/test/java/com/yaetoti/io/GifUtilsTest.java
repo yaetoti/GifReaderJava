@@ -4,7 +4,7 @@ import com.yaetoti.gif.utils.GifUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-public class GifUtilityTest {
+public class GifUtilsTest {
   @Test
   public void TestEncodeTableSize() {
     Assertions.assertEquals(0, GifUtils.EncodeTableSize(0));

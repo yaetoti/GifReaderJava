@@ -19,6 +19,31 @@ public class GifPlainRecoder {
   // Write to any file
 
   public static void Recode(RandomAccessFile input, DataOutputLE output) throws IOException {
+    // My own file format: plain animation format - PAF
+
+    // Header:
+    // PAF
+
+    // Animation Descriptor:
+    // Width - 2 bytes
+    // Height - 2 bytes
+    // Frames count - 4 bytes
+
+    // Frame Metadata:
+    // Frame metadata*
+
+    // Data section:
+    // Frame data*
+
+
+    // Frame metadata:
+    // Data offset - 4 bytes
+    // Data length - 4 bytes
+    // Delay - 2 bytes
+
+    // Frame data:
+    // Deflate-encoded R8G8B8A8 data
+
     GifReader in = new GifReader(new DataInputLE(input));
     GifOutput out = new GifOutput(output);
 
@@ -235,7 +260,7 @@ public class GifPlainRecoder {
           continue;
         }
 
-        colorTableElement.table = ByteSequence.ToByteArray(finalColors, 3);
+        colorTableElement.table = ByteSequence.ToByteArray(3, finalColors);
         out.WriteElement(colorTableElement);
         continue;
       }

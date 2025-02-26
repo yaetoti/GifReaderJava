@@ -89,7 +89,7 @@ public class MainQuantizationTest {
       // Create table element
       GifColorTable reducedTableElement = new GifColorTable();
       reducedTableElement.type = GifColorTableType.GLOBAL;
-      reducedTableElement.table = ByteSequence.ToByteArray(reducedPalette, 3);
+      reducedTableElement.table = ByteSequence.ToByteArray(3, reducedPalette);
 
       // Recode elements
       for (GifElement element : elements) {

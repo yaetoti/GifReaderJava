@@ -8,7 +8,7 @@ import org.jetbrains.annotations.Range;
 import java.util.Arrays;
 import java.util.Objects;
 
-public final class ByteSequence implements IByteSequenceView {
+public final class ByteSequence {
   private final byte[] m_buffer;
   private final int m_offset;
   private final int m_length;
@@ -31,28 +31,20 @@ public final class ByteSequence implements IByteSequenceView {
     m_length = length;
   }
 
-  @Override
   public byte GetByte(int index) {
     return m_buffer[m_offset + index];
   }
 
-  @Override
   public int GetUnsignedByte(int index) {
     return m_buffer[m_offset + index] & 0xFF;
   }
 
-  @Override
   public int Length() {
     return m_buffer.length;
   }
 
-  @Override
   public byte @NotNull [] ToByteArray() {
     return Arrays.copyOfRange(m_buffer, m_offset, m_offset + m_length);
-  }
-
-  public @NotNull ByteSequenceView AsView() {
-    return new ByteSequenceView(m_buffer, m_offset, m_length);
   }
 
   public @NotNull ByteSequence Append(byte value) {
@@ -62,7 +54,7 @@ public final class ByteSequence implements IByteSequenceView {
     return new ByteSequence(bytes);
   }
 
-  public ByteSequence Append(byte[] buffer) {
+  public ByteSequence Append(byte... buffer) {
     byte[] bytes = new byte[m_buffer.length + buffer.length];
     System.arraycopy(m_buffer, 0, bytes, 0, m_buffer.length);
     System.arraycopy(buffer, 0, bytes, m_buffer.length, buffer.length);
@@ -84,16 +76,26 @@ public final class ByteSequence implements IByteSequenceView {
 
   @Override
   public boolean equals(Object o) {
-    if (!(o instanceof ByteSequence that)) {
-      return false;
+    if (!(o instanceof ByteSequence that)) return false;
+    if (m_length != that.m_length) return false;
+    if (m_offset != that.m_offset) return false;
+    for (int i = m_offset; i < m_offset + m_length; ++i) {
+      if (!Objects.deepEquals(m_buffer[i], that.m_buffer[i])) return false;
     }
 
-    return Objects.deepEquals(m_buffer, that.m_buffer);
+    return true;
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(m_buffer);
+    int hash = 1;
+    for (int i = 0; i < m_length; i++) {
+      hash = 31 * hash + m_buffer[m_offset + i];
+    }
+
+    hash = 31 * hash + m_offset;
+    hash = 31 * hash + m_length;
+    return hash;
   }
 
   public static ByteSequence Of(byte... buffer) {
@@ -102,11 +104,12 @@ public final class ByteSequence implements IByteSequenceView {
     return new ByteSequence(bytes);
   }
 
-  public static ByteSequence Of(byte[] buffer, int offset, int length) {
-    assert buffer.length >= offset + length;
+  public static ByteSequence Of(short... buffer) {
+    byte[] bytes = new byte[buffer.length];
+    for (int i = 0; i < buffer.length; i++) {
+      bytes[i] = (byte) buffer[i];
+    }
 
-    byte[] bytes = new byte[length];
-    System.arraycopy(buffer, offset, bytes, 0, length);
     return new ByteSequence(bytes);
   }
 
@@ -116,6 +119,23 @@ public final class ByteSequence implements IByteSequenceView {
       bytes[i] = (byte) buffer[i];
     }
 
+    return new ByteSequence(bytes);
+  }
+
+  public static ByteSequence Of(long... buffer) {
+    byte[] bytes = new byte[buffer.length];
+    for (int i = 0; i < buffer.length; i++) {
+      bytes[i] = (byte) buffer[i];
+    }
+
+    return new ByteSequence(bytes);
+  }
+
+  public static ByteSequence Of(byte[] buffer, int offset, int length) {
+    assert buffer.length >= offset + length;
+
+    byte[] bytes = new byte[length];
+    System.arraycopy(buffer, offset, bytes, 0, length);
     return new ByteSequence(bytes);
   }
 
@@ -132,12 +152,40 @@ public final class ByteSequence implements IByteSequenceView {
     return byteSequences;
   }
 
-  public static byte[] ToByteArray(ByteSequence[] sequences, @Range(from = 0, to = Integer.MAX_VALUE) int elementSize) {
+  public static ByteSequence[] ArrayOfWrappers(byte[] bytes, int elementSize) {
+    assert bytes.length % elementSize == 0;
+
+    int size = bytes.length / elementSize;
+    ByteSequence[] byteSequences = new ByteSequence[size];
+
+    for (int i = 0; i < size; i++) {
+      byteSequences[i] = new ByteSequence(bytes, i * elementSize, elementSize);
+    }
+
+    return byteSequences;
+  }
+
+  public static byte[] ToByteArray(ByteSequence... sequences) {
+    int size = 0;
+    for (ByteSequence sequence : sequences) {
+      size += sequence.Length();
+    }
+
+    byte[] buffer = new byte[size];
+    int offset = 0;
+    for (ByteSequence sequence : sequences) {
+      System.arraycopy(sequence.m_buffer, sequence.m_offset, buffer, offset, sequence.Length());
+      offset += sequence.Length();
+    }
+
+    return buffer;
+  }
+
+  public static byte[] ToByteArray(@Range(from = 0, to = Integer.MAX_VALUE) int elementSize, @NotNull ByteSequence @NotNull... sequences) {
     byte[] bytes = new byte[sequences.length * elementSize];
     for (int i = 0; i < sequences.length; i++) {
-      assert sequences[i] != null;
       assert sequences[i].Length() == elementSize;
-      System.arraycopy(sequences[i].m_buffer, 0, bytes, i * elementSize, elementSize);
+      System.arraycopy(sequences[i].m_buffer, sequences[i].m_offset, bytes, i * elementSize, elementSize);
     }
 
     return bytes;

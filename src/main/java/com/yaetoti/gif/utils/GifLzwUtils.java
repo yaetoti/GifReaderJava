@@ -106,7 +106,12 @@ public class GifLzwUtils {
     short prevCode = Short.MIN_VALUE;
 
     while (true) {
-      currCode = in.GetShort(codeBits);
+      // Some encoders really like to omit last 0 byte (Premiere)
+      try {
+        currCode = in.GetShort(codeBits);
+      } catch (IndexOutOfBoundsException e) {
+        break;
+      }
 
       // End of information
       if (currCode == eoiCode) {

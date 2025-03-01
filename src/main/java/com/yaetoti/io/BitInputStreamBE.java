@@ -33,7 +33,7 @@ public final class BitInputStreamBE {
   }
 
   public long GetRemainingBits() {
-    return m_bufferBits + m_offsetBits - ((long) m_position * Byte.SIZE + m_positionBits);
+    return m_bufferBits - m_offsetBits - ((long) m_position * Byte.SIZE + m_positionBits);
   }
 
   public boolean HasBits(long amount) {

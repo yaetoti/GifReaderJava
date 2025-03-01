@@ -36,6 +36,103 @@ public class BitStreamTest {
       Assertions.assertEquals(-2, in.GetLong());
       Assertions.assertThrowsExactly(IndexOutOfBoundsException.class, in::GetLong);
     }
+    {
+      byte[] bytes = new byte[] {
+        (byte) 0b11111110,
+        (byte) 0b11111111,
+      };
+
+      BitInputStreamBE in = new BitInputStreamBE(bytes);
+      in.GetLong(1);
+      Assertions.assertEquals(15, in.GetRemainingBits());
+      in.GetLong(15);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(2);
+      Assertions.assertEquals(14, in.GetRemainingBits());
+      in.GetLong(14);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(3);
+      Assertions.assertEquals(13, in.GetRemainingBits());
+      in.GetLong(13);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(4);
+      Assertions.assertEquals(12, in.GetRemainingBits());
+      in.GetLong(12);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(5);
+      Assertions.assertEquals(11, in.GetRemainingBits());
+      in.GetLong(11);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(6);
+      Assertions.assertEquals(10, in.GetRemainingBits());
+      in.GetLong(10);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(7);
+      Assertions.assertEquals(9, in.GetRemainingBits());
+      in.GetLong(9);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(8);
+      Assertions.assertEquals(8, in.GetRemainingBits());
+      in.GetLong(8);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(9);
+      Assertions.assertEquals(7, in.GetRemainingBits());
+      in.GetLong(7);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(10);
+      Assertions.assertEquals(6, in.GetRemainingBits());
+      in.GetLong(6);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(11);
+      Assertions.assertEquals(5, in.GetRemainingBits());
+      in.GetLong(5);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(12);
+      Assertions.assertEquals(4, in.GetRemainingBits());
+      in.GetLong(4);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(13);
+      Assertions.assertEquals(3, in.GetRemainingBits());
+      in.GetLong(3);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(14);
+      Assertions.assertEquals(2, in.GetRemainingBits());
+      in.GetLong(2);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+
+      in.GetLong(15);
+      Assertions.assertEquals(1, in.GetRemainingBits());
+      in.GetLong(1);
+      Assertions.assertEquals(0, in.GetRemainingBits());
+      in.Reset();
+    }
   }
 
   @Test
